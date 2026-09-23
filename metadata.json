@@ -1,0 +1,8 @@
+{
+  "name": "AnimeWonderous",
+  "description": "The ultimate platform for anime fans, featuring shop, events, forums, and community.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
