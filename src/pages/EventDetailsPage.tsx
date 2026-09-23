@@ -14,9 +14,9 @@ export function EventDetailsPage() {
     <div className="container mx-auto px-4 py-12 lg:px-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-xs text-text-muted mb-8">
-        <Link to="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/events" className="hover:text-foreground">Events</Link>
+        <Link href="/events" className="hover:text-foreground">Events</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground font-medium">{event.title}</span>
       </nav>

@@ -52,7 +52,7 @@ export function CommunityPage() {
               <h2 className="text-2xl font-display mb-8 uppercase tracking-widest">Discover Communities</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {COMMUNITIES.map((comm) => (
-                  <Link to={`/community/${comm.id}`} key={comm.id} className="bg-surface rounded-2xl border border-border overflow-hidden group hover:border-primary/50 transition-colors block">
+                  <Link href={`/community/${comm.id}`} key={comm.id} className="bg-surface rounded-2xl border border-border overflow-hidden group hover:border-primary/50 transition-colors block">
                      <div className="h-24 bg-surface-elevated relative">
                         <img src={comm.banner} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity" />
                         <div className="absolute -bottom-6 left-6 h-12 w-12 rounded-xl bg-background border-2 border-border overflow-hidden">

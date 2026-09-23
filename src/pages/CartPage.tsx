@@ -35,7 +35,7 @@ export function CartPage() {
           <ShoppingCart className="h-16 w-16 text-text-muted mx-auto mb-4 opacity-20" />
           <h2 className="text-2xl font-display mb-2">Your cart is empty</h2>
           <p className="text-text-secondary mb-8">Looks like you haven't added anything to your cart yet.</p>
-          <Link to="/shop">
+          <Link href="/shop">
             <Button>Go to Shop</Button>
           </Link>
         </div>

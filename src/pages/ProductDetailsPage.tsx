@@ -17,9 +17,9 @@ export function ProductDetailsPage() {
     <div className="container mx-auto px-4 py-12 lg:px-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-xs text-text-muted mb-8">
-        <Link to="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/shop" className="hover:text-foreground">Shop</Link>
+        <Link href="/shop" className="hover:text-foreground">Shop</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground font-medium">{product.name}</span>
       </nav>
@@ -127,7 +127,7 @@ export function ProductDetailsPage() {
          <h2 className="text-2xl font-display mb-8 uppercase tracking-widest">Related Items</h2>
          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {PRODUCTS.filter(p => p.id !== product.id).slice(0, 4).map(p => (
-              <Link to={`/shop/${p.id}`} key={p.id} className="bg-surface rounded-2xl border border-border overflow-hidden group hover:border-primary/50 transition-colors">
+              <Link href={`/shop/${p.id}`} key={p.id} className="bg-surface rounded-2xl border border-border overflow-hidden group hover:border-primary/50 transition-colors">
                 <div className="aspect-square bg-background overflow-hidden">
                   <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>

@@ -45,7 +45,7 @@ export function HomePage() {
 
         {/* Floating Quick Stats/Links like in design */}
         <div className="absolute bottom-12 right-4 lg:right-12 hidden lg:flex gap-6">
-           <Link to="/shop" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
+           <Link href="/shop" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
               <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                 <ShoppingCart className="h-6 w-6" />
               </div>
@@ -54,7 +54,7 @@ export function HomePage() {
                 <p className="text-text-secondary text-sm">Exclusive merchandise</p>
               </div>
            </Link>
-           <Link to="/events" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
+           <Link href="/events" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
               <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500">
                 <Calendar className="h-6 w-6" />
               </div>
@@ -63,7 +63,7 @@ export function HomePage() {
                 <p className="text-text-secondary text-sm">Join world tour</p>
               </div>
            </Link>
-           <Link to="/forum" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
+           <Link href="/forum" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
               <div className="h-12 w-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500">
                 <MessageSquare className="h-6 w-6" />
               </div>
@@ -131,7 +131,7 @@ export function HomePage() {
                      <p className="text-sm text-text-secondary">
                         This month's spotlight was chosen by our community. Join the discussion and vote for next month's feature!
                      </p>
-                     <Link to="/community" className="block">
+                     <Link href="/community" className="block">
                         <Button variant="secondary" className="w-full group">
                            Join Discussion <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
@@ -152,13 +152,13 @@ export function HomePage() {
              <div>
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-display uppercase tracking-widest">Shop Exclusive Merch</h2>
-                  <Link to="/shop" className="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                  <Link href="/shop" className="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
                     View All <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {PRODUCTS.map((product) => (
-                    <Link to={`/shop/${product.id}`} key={product.id} className="bg-surface rounded-xl p-4 border border-border group block">
+                    <Link href={`/shop/${product.id}`} key={product.id} className="bg-surface rounded-xl p-4 border border-border group block">
                       <div className="aspect-square rounded-lg overflow-hidden mb-4 bg-background">
                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                       </div>
@@ -179,13 +179,13 @@ export function HomePage() {
              <div>
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-display uppercase tracking-widest">Upcoming Events</h2>
-                  <Link to="/events" className="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                  <Link href="/events" className="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
                     View Calendar <Calendar className="h-4 w-4" />
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {EVENTS.map((event) => (
-                    <Link to={`/events/${event.id}`} key={event.id} className="flex gap-4 bg-surface p-4 rounded-xl border border-border group hover:border-primary/50 transition-colors">
+                    <Link href={`/events/${event.id}`} key={event.id} className="flex gap-4 bg-surface p-4 rounded-xl border border-border group hover:border-primary/50 transition-colors">
                       <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0">
                         <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                       </div>
