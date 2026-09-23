@@ -1,16 +1,14 @@
-/** @type {import('next').NextType} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    ignoreBuildErrors: true,
+  experimental: {
+    // Prevents Windows/OneDrive symlink conflicts
+    outputFileTracingRoot: undefined,
   },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+  // Ensure Webpack doesn't resolve symlinks inside node_modules/OneDrive
+  webpack: (config: any) => {
+    config.resolve.symlinks = false;
+    return config;
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
