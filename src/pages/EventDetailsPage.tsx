@@ -6,8 +6,8 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Calendar, MapPin, Share2, Heart, Users, ShieldCheck, ChevronRight, Clock, Info } from 'lucide-react';
 
-export function EventDetailsPage() {
-  const { eventId } = useParams();
+export default function EventDetailsPage() {
+  const { eventId } = useParams<{ eventId: string }>() || {};
   const event = EVENTS.find(e => e.id === eventId) || EVENTS[0];
 
   return (

@@ -1,4 +1,4 @@
-import { CommunityPage } from '../../pages/CommunityPage';
+import CommunityPage from '../../pages/CommunityPage';
 
 export default function Community() {
   return (

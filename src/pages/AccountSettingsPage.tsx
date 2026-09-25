@@ -3,7 +3,7 @@ import { User, ShieldCheck, Mail, Lock, Bell, Eye, EyeOff, Globe, CreditCard } f
 import { Button } from '../components/ui/Button';
 import { useState } from 'react';
 
-export function AccountSettingsPage() {
+export default function AccountSettingsPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (

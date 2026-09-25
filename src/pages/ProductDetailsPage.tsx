@@ -7,8 +7,8 @@ import { Badge } from '../components/ui/Badge';
 import { Star, ShoppingCart, Heart, Share2, ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
-export function ProductDetailsPage() {
-  const { productId } = useParams();
+export default function ProductDetailsPage() {
+  const { productId } = useParams<{ productId: string }>() || {};
   const product = PRODUCTS.find(p => p.id === productId) || PRODUCTS[0];
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);

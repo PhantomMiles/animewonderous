@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 
-export function CartPage() {
+export default function CartPage() {
   const [cartItems, setCartItems] = useState(
     PRODUCTS.slice(0, 3).map(p => ({ ...p, quantity: 1 }))
   );

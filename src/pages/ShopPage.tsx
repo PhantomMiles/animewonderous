@@ -5,7 +5,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Star, Filter, ChevronDown, ShoppingCart } from 'lucide-react';
 
-export function ShopPage() {
+export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const categories = ['All', 'Figures', 'Apparel', 'Media', 'Statues', 'Accessories'];
 

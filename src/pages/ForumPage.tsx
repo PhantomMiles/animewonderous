@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { NewDiscussionModal } from '../components/NewDiscussionModal';
 
-export function ForumPage() {
+export default function ForumPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

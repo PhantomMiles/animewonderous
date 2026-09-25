@@ -6,7 +6,7 @@ import { PRODUCTS, EVENTS, FORUM_POSTS } from '../data/mockData';
 import { Star, ArrowRight, Play, Heart, Share2, Calendar, MapPin, MessageSquare, ChevronRight, ChevronLeft, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 
-export function HomePage() {
+export default function HomePage() {
   return (
     <div className="pb-20">
       {/* Hero Section */}

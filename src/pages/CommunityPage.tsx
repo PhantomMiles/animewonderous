@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { CreateCommunityModal } from '../components/CreateCommunityModal';
 
-export function CommunityPage() {
+export default function CommunityPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

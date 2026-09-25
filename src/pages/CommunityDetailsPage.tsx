@@ -7,8 +7,8 @@ import { Badge } from '../components/ui/Badge';
 import { Users, ShieldCheck, MessageSquare, Heart, Share2, Plus, Info, ChevronRight, Globe, Filter } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export function CommunityDetailsPage() {
-  const { communityId } = useParams();
+export default function CommunityDetailsPage() {
+  const { communityId } = useParams<{ communityId: string }>() || {};
   const community = COMMUNITIES.find(c => c.id === communityId) || COMMUNITIES[0];
 
   return (

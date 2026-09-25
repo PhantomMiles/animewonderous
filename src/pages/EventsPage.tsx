@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Calendar as CalendarIcon, MapPin, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export function EventsPage() {
+export default function EventsPage() {
   return (
     <div className="container mx-auto px-4 py-12 lg:px-8">
       <div className="mb-12">

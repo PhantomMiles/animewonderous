@@ -6,7 +6,7 @@ import { Package, MapPin, CreditCard, ChevronLeft, Truck, CheckCircle2 } from 'l
 import { Button } from '../components/ui/Button';
 import { PRODUCTS } from '../data/mockData';
 
-export function OrderDetailsPage() {
+export default function OrderDetailsPage() {
   const params = useParams();
   const orderId = params?.orderId as string;
 
