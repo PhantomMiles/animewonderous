@@ -1,17 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout } from './components/Layout';
-import { HomePage } from './pages/HomePage';
-import { ShopPage } from './pages/ShopPage';
-import { ProductDetailsPage } from './pages/ProductDetailsPage';
-import { EventsPage } from './pages/EventsPage';
-import { EventDetailsPage } from './pages/EventDetailsPage';
-import { CommunityPage } from './pages/CommunityPage';
-import { CommunityDetailsPage } from './pages/CommunityDetailsPage';
-import { ForumPage } from './pages/ForumPage';
-import { AccountPage } from './pages/AccountPage';
-import { AccountSettingsPage } from './pages/AccountSettingsPage';
-import { CartPage } from './pages/CartPage';
-import { OrderDetailsPage } from './pages/OrderDetailsPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import ShopPage from './pages/ShopPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
+import EventsPage from './pages/EventsPage';
+import EventDetailsPage from './pages/EventDetailsPage';
+import CommunityPage from './pages/CommunityPage';
+import CommunityDetailsPage from './pages/CommunityDetailsPage';
+import ForumPage from './pages/ForumPage';
+import AccountPage from './pages/AccountPage';
+import AccountSettingsPage from './pages/AccountSettingsPage';
+import CartPage from './pages/CartPage';
+import OrderDetailsPage from './pages/OrderDetailsPage';
 
 export default function App() {
   return (
