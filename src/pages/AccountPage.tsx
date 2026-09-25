@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 type AccountTab = 'overview' | 'orders' | 'events' | 'discussions' | 'billing' | 'settings';
 
-export function AccountPage() {
+export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<AccountTab>('overview');
 
   const navItems = [
