@@ -5,12 +5,16 @@ import { EVENTS } from '../data/mockData';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Calendar, MapPin, Share2, Heart, Users, ShieldCheck, ChevronRight, Clock, Info } from 'lucide-react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function EventDetailsPage() {
   const { eventId } = useParams<{ eventId: string }>() || {};
   const event = EVENTS.find(e => e.id === eventId) || EVENTS[0];
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-xs text-text-muted mb-8">
@@ -150,5 +154,7 @@ export default function EventDetailsPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

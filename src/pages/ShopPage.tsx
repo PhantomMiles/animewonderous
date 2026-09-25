@@ -3,13 +3,17 @@ import { useState } from 'react';
 import { PRODUCTS } from '../data/mockData';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Star, Filter, ChevronDown, ShoppingCart } from 'lucide-react';
+import { Star, Filter, ChevronDown  , ShoppingCart } from 'lucide-react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const categories = ['All', 'Figures', 'Apparel', 'Media', 'Statues', 'Accessories'];
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
@@ -111,5 +115,7 @@ export default function ShopPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

@@ -4,9 +4,13 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Calendar as CalendarIcon, MapPin, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function EventsPage() {
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       <div className="mb-12">
         <h1 className="text-4xl font-display">EVENTS</h1>
@@ -112,5 +116,7 @@ export default function EventsPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

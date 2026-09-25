@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { PRODUCTS, EVENTS, FORUM_POSTS } from '../data/mockData';
 import { Star, ArrowRight, Play, Heart, Calendar, MapPin, MessageSquare, ChevronRight, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
@@ -11,7 +12,7 @@ export default function HomePage() {
   return (
     <>
     <Header />
-    <div className="pb-20">
+    <div className="pb-10">
       {/* Hero Section */}
       <section className="relative h-[85vh] overflow-hidden">
         <div className="absolute inset-0">
@@ -270,6 +271,7 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+    <Footer />
     </>
   );
 }

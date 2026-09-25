@@ -5,12 +5,16 @@ import { Button } from '../components/ui/Button';
 import { MessageSquare, Heart, Share2, MoreHorizontal, Plus, Search, Filter } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { NewDiscussionModal } from '../components/NewDiscussionModal';
 
 export default function ForumPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
@@ -116,5 +120,7 @@ export default function ForumPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

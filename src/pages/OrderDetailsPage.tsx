@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Package, MapPin, CreditCard, ChevronLeft, Truck, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { PRODUCTS } from '../data/mockData';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function OrderDetailsPage() {
   const params = useParams();
@@ -37,6 +39,8 @@ export default function OrderDetailsPage() {
   };
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Fixed: Replaced 'to' with 'href' for Next.js Link */}
@@ -171,5 +175,7 @@ export default function OrderDetailsPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

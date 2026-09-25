@@ -6,14 +6,18 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Users, ShieldCheck, MessageSquare, Heart, Share2, Plus, Info, ChevronRight, Globe, Filter } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function CommunityDetailsPage() {
   const { communityId } = useParams<{ communityId: string }>() || {};
   const community = COMMUNITIES.find(c => c.id === communityId) || COMMUNITIES[0];
 
   return (
+    <>
+    <Header />
     <div className="pb-20">
-      {/* Banner */}
+      {/* Banner */}  
       <div className="h-64 md:h-80 relative overflow-hidden">
         <img src={community.banner} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
@@ -144,5 +148,7 @@ export default function CommunityDetailsPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

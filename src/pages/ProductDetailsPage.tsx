@@ -6,6 +6,8 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Star, ShoppingCart, Heart, Share2, ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function ProductDetailsPage() {
   const { productId } = useParams<{ productId: string }>() || {};
@@ -14,6 +16,8 @@ export default function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-xs text-text-muted mb-8">
@@ -140,5 +144,7 @@ export default function ProductDetailsPage() {
          </div>
       </section>
     </div>
+    <Footer />
+    </>
   );
 }

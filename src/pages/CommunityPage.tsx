@@ -5,12 +5,16 @@ import { Button } from '../components/ui/Button';
 import { Users, ShieldCheck, TrendingUp, Plus, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { CreateCommunityModal } from '../components/CreateCommunityModal';
 
 export default function CommunityPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-12 lg:px-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
@@ -127,5 +131,7 @@ export default function CommunityPage() {
         </aside>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
