@@ -115,6 +115,7 @@
     @apply font-sans;
   }
 }
+/* Add to global.css / index.css */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
@@ -123,12 +124,20 @@
 
 @keyframes loadingBar {
   0% {
-    transform: translateX(-100%);
+    transform: scaleX(0);
   }
   50% {
-    transform: translateX(0%);
+    transform: scaleX(0.7);
   }
   100% {
-    transform: translateX(100%);
+    transform: scaleX(1);
   }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+.animate-loading-bar {
+  animation: loadingBar 1.2s ease-in-out infinite;
 }

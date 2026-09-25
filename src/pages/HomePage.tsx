@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { PRODUCTS, EVENTS, FORUM_POSTS } from '../data/mockData';
-import { Star, ArrowRight, Play, Heart, Share2, Calendar, MapPin, MessageSquare, ChevronRight, ChevronLeft, ShoppingCart } from 'lucide-react';
+import { Star, ArrowRight, Play, Heart, Calendar, MapPin, MessageSquare, ChevronRight, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -129,7 +129,7 @@ export default function HomePage() {
                   <div className="bg-surface border border-border p-8 rounded-3xl space-y-4">
                      <h3 className="text-xl font-display uppercase tracking-wider">Be Part of the Story</h3>
                      <p className="text-sm text-text-secondary">
-                        This month's spotlight was chosen by our community. Join the discussion and vote for next month's feature!
+                        This month&apos;s spotlight was chosen by our community. Join the discussion and vote for next month&apos;s feature!
                      </p>
                      <Link href="/community" className="block">
                         <Button variant="secondary" className="w-full group">

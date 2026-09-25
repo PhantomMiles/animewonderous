@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Search, Bell, User, ShoppingCart, Menu, X, Sun, Moon } from 'lucide-react';
+import { Search, User, ShoppingCart, Menu, X, Sun, Moon } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
@@ -33,10 +34,10 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
+            <Image src="/aa.png" alt="Logo" width={100} height={100} className='h-12 w-auto' />
             <span className="font-display text-xl font-bold tracking-tight text-primary">ANIME</span>
             <span className="font-display text-xl font-bold tracking-tight text-foreground">WONDEROUS</span>
           </Link>
-
           <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
               <Link

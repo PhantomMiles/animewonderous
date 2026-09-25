@@ -1,5 +1,5 @@
 import { Header } from './Header';
-
+import Link from 'next/link';
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -26,10 +26,10 @@ export function Layout({ children }: LayoutProps) {
             <div>
               <h4 className="font-display text-foreground mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-text-secondary">
-                <li><a href="/" className="hover:text-primary transition-colors">Home</a></li>
-                <li><a href="/shop" className="hover:text-primary transition-colors">Shop</a></li>
-                <li><a href="/events" className="hover:text-primary transition-colors">Events</a></li>
-                <li><a href="/community" className="hover:text-primary transition-colors">Community</a></li>
+                <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
+                <li><Link href="/shop" className="hover:text-primary transition-colors">Shop</Link></li>
+                <li><Link href="/events" className="hover:text-primary transition-colors">Events</Link></li>
+                <li><Link href="/community" className="hover:text-primary transition-colors">Community</Link></li>
               </ul>
             </div>
             <div>

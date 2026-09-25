@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Package, MapPin, CreditCard, ChevronLeft, Truck, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -105,7 +106,7 @@ export default function OrderDetailsPage() {
                 {order.items.map((item) => (
                   <div key={item.id} className="p-6 flex gap-6 items-center">
                     <div className="h-20 w-20 rounded-xl bg-background border border-border overflow-hidden shrink-0">
-                      <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+                      <Image src={item.images[0]} alt={item.name} width={100} height={100} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-sm">{item.name}</h4>

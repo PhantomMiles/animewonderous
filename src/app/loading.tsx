@@ -1,39 +1,57 @@
 import React from "react";
+import Image from "next/image";
 
-export default function Loading() {
+export default function Loading(): React.ReactElement {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
+    <div
+      role="status"
+      aria-label="Loading page content"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
+    >
       {/* Glow effect matching app's spotlight style */}
-      <div className="absolute h-64 w-64 rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
+      <div 
+        aria-hidden="true" 
+        className="absolute h-64 w-64 rounded-full bg-primary/20 blur-[120px] pointer-events-none" 
+      />
 
       <div className="relative flex flex-col items-center gap-6">
         {/* Animated Brand Emblem */}
         <div className="relative flex items-center justify-center">
-          <div className="h-20 w-20 rounded-2xl bg-surface border border-border flex items-center justify-center shadow-2xl relative overflow-hidden">
-            <span className="font-display text-2xl font-bold text-primary tracking-widest animate-pulse">
-              AW
-            </span>
+          <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-border bg-surface flex items-center justify-center shadow-2xl">
+            <Image src="/aa.png" alt="Logo" width={100} height={100} className='h-12 w-auto' />
             {/* Shimmer overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+            <div 
+              aria-hidden="true" 
+              className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/20 to-transparent animate-shimmer" 
+            />
           </div>
-          
+
           {/* Rotating Outer Ring */}
-          <div className="absolute -inset-2 rounded-3xl border-2 border-primary/30 border-t-primary animate-spin" />
+          <div 
+            aria-hidden="true" 
+            className="absolute -inset-2 rounded-3xl border-2 border-primary/30 border-t-primary animate-spin" 
+          />
         </div>
 
         {/* Brand Name & Loader Bar */}
         <div className="flex flex-col items-center gap-2 text-center">
-          <p className="font-display text-lg tracking-[0.2em] text-foreground font-semibold">
+          <p className="font-display text-lg font-semibold tracking-[0.2em] text-foreground">
             ANIMEWONDEROUS
           </p>
-          <div className="h-1 w-32 overflow-hidden rounded-full bg-surface border border-border">
-            <div className="h-full w-full bg-primary origin-left animate-[loadingBar_1.2s_ease-in-out_infinite]" />
+          <div className="h-1 w-32 overflow-hidden rounded-full border border-border bg-surface">
+            <div 
+              aria-hidden="true" 
+              className="h-full w-full origin-left bg-primary animate-loading-bar" 
+            />
           </div>
-          <p className="text-xs text-text-muted tracking-wider uppercase mt-1">
+          <p className="mt-1 text-xs uppercase tracking-wider text-text-muted">
             Loading Experience...
           </p>
         </div>
       </div>
+      
+      {/* Screen reader only announcement */}
+      <span className="sr-only">Loading, please wait...</span>
     </div>
   );
 }

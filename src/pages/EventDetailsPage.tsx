@@ -65,7 +65,7 @@ export default function EventDetailsPage() {
               <div className="prose prose-invert max-w-none">
                  <h3 className="font-display text-2xl mb-4">About This Event</h3>
                  <p className="text-text-secondary leading-relaxed text-lg">
-                    {event.description} This event brings together thousands of enthusiasts from around the world to celebrate the best of anime culture. Experience exclusive screenings, meet your favorite voice actors, and explore a massive dealer's room filled with rare merchandise.
+                    {event.description} This event brings together thousands of enthusiasts from around the world to celebrate the best of anime culture. Experience exclusive screenings, meet your favorite voice actors, and explore a massive dealer&apos;s room filled with rare merchandise.
                  </p>
                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 list-none p-0">
                     <li className="flex items-center gap-3 bg-surface p-4 rounded-2xl border border-border">
