@@ -1,6 +1,4 @@
 @import "tailwindcss";
-/* @import "tw-animate-css";
-@import "shadcn/tailwind.css"; */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -38,7 +36,10 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Animewonderous Custom Colors */
+  /* Legacy & Surface aliases */
+  --color-surface: var(--card);
+
+  /* Animewonderous Custom Brand Palette */
   --color-aw-orange: #FF7A00;
   --color-aw-orange-hover: #FF941F;
   --color-aw-orange-deep: #D95F00;
@@ -62,6 +63,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Dark Theme Variables (Default) */
 :root, .dark {
   --background: #050608; /* Base Black */
   --foreground: #F5F7FA; /* Text Primary */
@@ -89,7 +91,7 @@
   
   --border: #26303A; /* Border */
   --input: #26303A;
-  --ring: #FF7A00; /* Focus ring is primary orange */
+  --ring: #FF7A00;
   
   --radius: 0.5rem;
   
@@ -104,18 +106,60 @@
   --sidebar-ring: #FF7A00;
 }
 
+/* Light Theme Variables Override */
+.light {
+  --background: #FAFAFA;
+  --foreground: #09090B;
+  
+  --card: #FFFFFF;
+  --card-foreground: #09090B;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #09090B;
+  
+  --primary: #FF7A00;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #F4F4F5;
+  --secondary-foreground: #18181B;
+  
+  --muted: #F4F4F5;
+  --muted-foreground: #71717A;
+  
+  --accent: #F4F4F5;
+  --accent-foreground: #FF7A00;
+  
+  --destructive: #F12B2B;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #E4E4E7;
+  --input: #E4E4E7;
+  --ring: #FF7A00;
+  
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #09090B;
+  --sidebar-primary: #FF7A00;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F4F4F5;
+  --sidebar-accent-foreground: #FF7A00;
+  --sidebar-border: #E4E4E7;
+  --sidebar-ring: #FF7A00;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-200;
   }
   html {
     @apply font-sans;
   }
 }
-/* Add to global.css / index.css */
+
+/* Custom Animation Keyframes */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
