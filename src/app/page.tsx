@@ -10,7 +10,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <Loading 
-        duration={2000} // Adjust time in ms (e.g., 2000 = 2 seconds)
+        duration={5000} // Adjust time in ms (e.g., 2000 = 2 seconds)
         onComplete={() => setIsLoading(false)} 
       />
     );
