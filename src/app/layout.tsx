@@ -10,6 +10,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Animewonderous | More Than Just Fandom",
   description: "Anime merch, COD tournaments, anime streaming, and the biggest anime fest in Enugu.",
+  icons: {
+    icon: "/aa.png",
+    shortcut: "/aa.png",
+    apple: "/aa.png",
+  },
 };
 
 export default function RootLayout({
@@ -25,4 +30,3 @@ export default function RootLayout({
     </html>
   );
 }
-
