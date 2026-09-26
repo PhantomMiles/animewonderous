@@ -11,11 +11,10 @@ import { Footer } from '@/components/Footer';
 
 export default function OrderDetailsPage() {
   const params = useParams();
-  const orderId = params?.orderId as string;
+  const orderId = (params?.orderId as string) || 'AW-10294';
 
-  // Mock order data based on orderId or default
   const order = {
-    id: orderId || 'AW-10294',
+    id: orderId,
     date: 'Sept 12, 2026',
     status: 'Delivered',
     items: [
@@ -40,60 +39,58 @@ export default function OrderDetailsPage() {
 
   return (
     <>
-    <Header />
-    <div className="container mx-auto px-4 py-12 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Fixed: Replaced 'to' with 'href' for Next.js Link */}
+      <Header />
+      <div className="container mx-auto px-4 py-12 lg:px-8 max-w-5xl">
         <Link 
           href="/account" 
-          className="inline-flex items-center gap-2 text-text-secondary hover:text-primary transition-colors mb-8 group"
+          className="inline-flex items-center gap-2 text-xs text-text-secondary hover:text-primary transition-colors mb-8 group"
         >
-          <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to Account
+          <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to Account Dashboard
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-6 border-b border-border/60">
           <div>
-            <h1 className="text-4xl font-display uppercase tracking-wider mb-2">Order Details</h1>
-            <p className="text-text-secondary text-sm">Order #{order.id} • Placed on {order.date}</p>
+            <h1 className="text-3xl md:text-4xl font-display uppercase tracking-wider mb-2">Order Summary</h1>
+            <p className="text-text-secondary text-xs">Order #{order.id} • Confirmed {order.date}</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline">Download Invoice</Button>
-            <Button>Buy Again</Button>
+            <Button variant="outline" size="sm">Download Invoice</Button>
+            <Button size="sm" className="shadow-md shadow-primary/20">Buy Again</Button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Status Tracker */}
-            <div className="bg-surface rounded-2xl border border-border p-8">
-              <h3 className="font-bold mb-6">Order Status</h3>
-              <div className="relative">
-                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
+            <div className="bg-surface/80 rounded-3xl border border-border/60 p-8 shadow-xl">
+              <h3 className="font-display text-base uppercase tracking-wider mb-6">Fulfillment Timeline</h3>
+              <div className="relative pl-2">
+                <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-border/80" />
                 <div className="space-y-8 relative">
-                  <div className="flex gap-6">
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-foreground shrink-0 z-10">
-                      <CheckCircle2 className="h-5 w-5" />
+                  <div className="flex gap-5 items-start">
+                    <div className="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 z-10 shadow-lg shadow-emerald-500/20">
+                      <CheckCircle2 className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Order Delivered</p>
+                      <p className="font-bold text-sm">Package Delivered</p>
                       <p className="text-xs text-text-secondary">Sept 15, 2026 • 2:30 PM</p>
                     </div>
                   </div>
-                  <div className="flex gap-6">
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-foreground shrink-0 z-10">
-                      <Truck className="h-5 w-5" />
+                  <div className="flex gap-5 items-start">
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-foreground shrink-0 z-10 shadow-lg shadow-primary/20">
+                      <Truck className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="font-bold text-sm">Out for Delivery</p>
                       <p className="text-xs text-text-secondary">Sept 15, 2026 • 9:00 AM</p>
                     </div>
                   </div>
-                  <div className="flex gap-6">
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-foreground shrink-0 z-10">
-                      <Package className="h-5 w-5" />
+                  <div className="flex gap-5 items-start">
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-foreground shrink-0 z-10 shadow-lg shadow-primary/20">
+                      <Package className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Shipped from Lagos Hub</p>
+                      <p className="font-bold text-sm">Dispatched from Lagos Hub</p>
                       <p className="text-xs text-text-secondary">Sept 13, 2026 • 4:15 PM</p>
                     </div>
                   </div>
@@ -102,22 +99,22 @@ export default function OrderDetailsPage() {
             </div>
 
             {/* Items */}
-            <div className="bg-surface rounded-2xl border border-border overflow-hidden">
-              <div className="p-6 border-b border-border">
-                <h3 className="font-bold">Items in Order</h3>
+            <div className="bg-surface/80 rounded-3xl border border-border/60 overflow-hidden shadow-xl">
+              <div className="p-6 border-b border-border/60">
+                <h3 className="font-display text-base uppercase tracking-wider">Ordered Items</h3>
               </div>
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-border/60">
                 {order.items.map((item) => (
                   <div key={item.id} className="p-6 flex gap-6 items-center">
-                    <div className="h-20 w-20 rounded-xl bg-background border border-border overflow-hidden shrink-0">
-                      <Image src={item.images[0]} alt={item.name} width={100} height={100} className="w-full h-full object-cover" />
+                    <div className="h-20 w-20 rounded-2xl bg-background border border-border overflow-hidden shrink-0">
+                      <Image src={item.images[0]} alt={item.name} width={80} height={80} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-sm">{item.name}</h4>
-                      <p className="text-xs text-text-secondary">{item.category} • Qty: {item.quantity}</p>
+                      <p className="text-xs text-text-secondary mt-1">{item.category} • Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary">₦{item.price.toLocaleString()}</p>
+                      <p className="font-bold text-primary text-base">₦{item.price.toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
@@ -127,46 +124,42 @@ export default function OrderDetailsPage() {
 
           <div className="space-y-8">
             {/* Delivery Info */}
-            <div className="bg-surface rounded-2xl border border-border p-6 space-y-6">
+            <div className="bg-surface/80 rounded-3xl border border-border/60 p-6 shadow-xl space-y-6">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-4 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" /> Delivery Address
+                <h3 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" /> Delivery Destination
                 </h3>
-                <div className="text-sm">
-                  <p className="font-bold">{order.shippingAddress.name}</p>
+                <div className="text-xs space-y-1">
+                  <p className="font-bold text-foreground text-sm">{order.shippingAddress.name}</p>
                   <p className="text-text-secondary">{order.shippingAddress.street}</p>
                   <p className="text-text-secondary">{order.shippingAddress.city}, {order.shippingAddress.country}</p>
-                  <p className="text-text-secondary mt-2">{order.shippingAddress.phone}</p>
+                  <p className="text-text-secondary pt-1">{order.shippingAddress.phone}</p>
                 </div>
               </div>
-              <div className="h-px bg-border" />
+              <div className="h-px bg-border/60" />
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-4 flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-primary" /> Payment Method
+                <h3 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-primary" /> Payment Selection
                 </h3>
-                <p className="text-sm font-bold">{order.paymentMethod}</p>
+                <p className="text-xs font-bold text-foreground">{order.paymentMethod}</p>
               </div>
             </div>
 
             {/* Summary */}
-            <div className="bg-surface rounded-2xl border border-border p-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-text-secondary mb-6">Order Summary</h3>
-              <div className="space-y-4 text-sm">
+            <div className="bg-surface/80 rounded-3xl border border-border/60 p-6 shadow-xl">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-4">Payment breakdown</h3>
+              <div className="space-y-3 text-xs">
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Subtotal</span>
-                  <span className="font-medium">₦{order.summary.subtotal.toLocaleString()}</span>
+                  <span className="font-semibold">₦{order.summary.subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-secondary">Shipping</span>
-                  <span className="font-medium">₦{order.summary.shipping.toLocaleString()}</span>
+                  <span className="text-text-secondary">Shipping Charge</span>
+                  <span className="font-semibold">₦{order.summary.shipping.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Estimated Tax</span>
-                  <span className="font-medium">₦{order.summary.tax.toLocaleString()}</span>
-                </div>
-                <div className="h-px bg-border my-4" />
-                <div className="flex justify-between text-lg font-display">
-                  <span>TOTAL</span>
+                <div className="h-px bg-border/60 my-2" />
+                <div className="flex justify-between text-base font-display">
+                  <span>TOTAL PAID</span>
                   <span className="text-primary font-bold">₦{order.summary.total.toLocaleString()}</span>
                 </div>
               </div>
@@ -174,8 +167,7 @@ export default function OrderDetailsPage() {
           </div>
         </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 }
