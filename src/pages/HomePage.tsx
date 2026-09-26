@@ -49,8 +49,8 @@ export default function HomePage() {
 
         {/* Floating Quick Stats/Links like in design */}
         <div className="absolute bottom-12 right-4 lg:right-12 hidden lg:flex gap-6">
-           <Link href="/shop" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
-              <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+           <Link href="/shop" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-red-500/50 transition-colors cursor-pointer group">
+              <div className="h-12 w-12 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500">
                 <ShoppingCart className="h-6 w-6" />
               </div>
               <div>
@@ -58,7 +58,7 @@ export default function HomePage() {
                 <p className="text-text-secondary text-sm">Exclusive merchandise</p>
               </div>
            </Link>
-           <Link href="/events" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
+           <Link href="/events" className="bg-surface/80 backdrop-blur-md p-6 rounded-2xl border border-border flex items-center gap-4 hover:border-blue-500/50 transition-colors cursor-pointer group">
               <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500">
                 <Calendar className="h-6 w-6" />
               </div>

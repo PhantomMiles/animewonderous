@@ -35,8 +35,9 @@ export function Header() {
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/aa.png" alt="Logo" width={100} height={100} className='h-12 w-auto' />
-            <span className="font-display text-xl font-bold tracking-tight text-primary">ANIME</span>
-            <span className="font-display text-xl font-bold tracking-tight text-foreground">WONDEROUS</span>
+            <span className="font-display text-xl font-bold tracking-tight bg-gradient-to-r from-red-500 via-primary to-foreground bg-clip-text text-transparent">
+              ANIMEWONDEROUS
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (

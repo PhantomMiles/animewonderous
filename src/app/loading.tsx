@@ -14,13 +14,13 @@ export default function Loading({
 }: LoadingProps): React.ReactElement {
   const [progress, setProgress] = useState(0);
 
+  // Handle percentage progress timer
   useEffect(() => {
     const stepTime = duration / 100;
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
-          if (onComplete) onComplete();
           return 100;
         }
         return prev + 1;
@@ -28,7 +28,14 @@ export default function Loading({
     }, stepTime);
 
     return () => clearInterval(timer);
-  }, [duration, onComplete]);
+  }, [duration]);
+
+  // Handle completion trigger cleanly after render pass completes
+  useEffect(() => {
+    if (progress >= 100 && onComplete) {
+      onComplete();
+    }
+  }, [progress, onComplete]);
 
   return (
     <div
@@ -49,9 +56,9 @@ export default function Loading({
             <Image 
               src="/aa.png" 
               alt="Animewonderous Brand Emblem" 
-              width={48} 
-              height={48} 
-              className="object-contain"
+              width={200} 
+              height={200} 
+              className="object-cover"
               priority
             />
             {/* Shimmer overlay */}
