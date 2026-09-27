@@ -100,7 +100,7 @@ export default function CommunityPage() {
               <div className="space-y-6">
                 {[1, 2, 3, 4].map(i => (
                   <div key={i} className="flex items-center justify-between group cursor-pointer">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                        <div className="text-text-muted font-bold text-lg italic w-4">#0{i}</div>
                        <div>
                           <p className="font-bold text-sm group-hover:text-primary transition-colors">AnimeExpo2026</p>

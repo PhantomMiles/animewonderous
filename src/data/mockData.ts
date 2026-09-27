@@ -726,8 +726,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200',
-      'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1200',
+      '../../merch/goku-ultra-instinct-statue.jpg',
+      '../../merch/ultra-instinct-2.jpg',
+      '../../merch/ultra-instinct-3.jpg'
     ],
     description:
       'Hand-painted master grade collectible statue depicting Ultra Instinct Son Goku with dynamic aura translucency and integrated LED pedestal light.',
@@ -742,8 +743,8 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.8,
     images: [
-      'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200',
-      'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200',
+      '../../merch/cyberpunk-katana-1.jpg',
+      '../../merch/cyberpunk-katana-2.jpg'
     ],
     description:
       'High-grade decorative cosplay katana featuring neon accent trims and custom laser-etched scabbard.',
@@ -758,7 +759,8 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.7,
     images: [
-      'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200',
+      '../../merch/shibuya-fest-hoodie-1.jpg',
+      '../../merch/shibuya-fest-hoodie-2.jpg'
     ],
     description:
       'Heavyweight 400gsm cotton fleece hoodie with high-density Shibuya Fest back artwork and embroidered anime sleeve patches.',
@@ -773,12 +775,99 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 5.0,
     images: [
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200',
+      '../../merch/hashira-artbook-1.jpg',
+      '../../merch/hashira-artbook-2.jpg'
     ],
     description:
       'Official hardcover concept art collection featuring full-color character illustrations, production notes, and exclusive key visual sketches.',
     stock: 22,
     tags: ['Artbook', 'Import'],
+  },
+  {
+    id: 'prod-005',
+    name: 'Akastuki Hoodie',
+    category: 'Apparel',
+    price: 10000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '../../merch/akatsuki-hoodie.jpg',
+    ],
+    description: 'Comfortable and stylish Akastuki hoodie that makes you stand out from the crowd. Join the Akatsuki with this cool hoodie',
+    stock: 50,
+    tags: ['Anime', 'New Arrival'],
+  },
+  {
+    id: 'prod-006',
+    name: 'Gojo Statue',
+    category: 'Anime Figure',
+    price: 1000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '../../merch/gojo.jpg',
+    ],
+    description: 'A cool and detailed Gojo statue, that brings the aura to your living space wherever you put it.',
+    stock: 50,
+    tags: ['Anime', 'Statue'],
+  },
+  {
+    id: 'prod-007',
+    name: 'Pokemon Keychain Set',
+    category: 'Accessories',
+    price: 5000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '../../merch/poke-keychain.jpg',
+    ],
+    description: 'A cool and detailed Pokemon keychain set.',
+    stock: 50,
+    tags: ['Anime', 'Keychain'],
+  },
+  {
+    id: 'prod-008',
+    name: 'Kamado Tanjiro Demon Slayer Hoodie',
+    category: 'Apparel',
+    price: 25000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '../../merch/demon-slayer-hoodie.jpg',
+    ],
+    description: 'A cool and detailed Demon Slayer hoodie.',
+    stock: 50,
+    tags: ['Anime', 'Hoodie'],
+  },
+  {
+    id: 'prod-009',
+    name: 'Demon Slayer Hashira Keychain Set',
+    category: 'Accessories',
+    price: 5000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '../../merch/hashira-keychain-1.jpg',
+      '../../merch/hashira-keychain-2.jpg',
+      '../../merch/hashira-keychain-3.jpg',
+    ],
+    description: 'A cool and detailed Demon Slayer Hashira keychain set.',
+    stock: 50,
+    tags: ['Anime', 'Keychain'],
+  },
+  {
+    id: 'prod-010',
+    name: 'Monkey D Luffy Straw Hat',
+    category: 'Cosplay',
+    price: 5000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '../../merch/straw-hat.jpg',
+    ],
+    description: 'This straw hat makes you look and feel like you are the aspiring Pirate King.',
+    stock: 50,
+    tags: ['Anime', 'Cosplay'],
   },
 ];
 
