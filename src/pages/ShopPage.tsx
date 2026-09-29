@@ -1,122 +1,352 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { PRODUCTS } from '../data/mockData';
-import { Badge } from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
-import { Star, Filter, ChevronDown, ShoppingCart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import Link from 'next/link';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  ShoppingCart,
+  ArrowUpDown,
+  Filter,
+  X,
+  SlidersHorizontal,
+} from 'lucide-react';
+
+const ITEMS_PER_PAGE = 12;
 
 export default function ShopPage() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const categories = ['All', 'Figures', 'Apparel', 'Media', 'Statues', 'Accessories'];
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<string>('featured');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<number>(500000);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Extract categories dynamically from mockData PRODUCTS
+  const categories = useMemo(() => {
+    const rawCategories = PRODUCTS.map((p) => p.category).filter(Boolean);
+    const uniqueCategories = Array.from(new Set(rawCategories));
+    return ['All', ...uniqueCategories];
+  }, []);
+
+  // Calculate highest price for the range filter
+  const highestProductPrice = useMemo(() => {
+    return Math.max(...PRODUCTS.map((p) => p.price || 0), 500000);
+  }, []);
+
+  // Filter & Sort Logic
+  const filteredAndSortedProducts = useMemo(() => {
+    let list = [...PRODUCTS];
+
+    // Filter by Category
+    if (activeCategory !== 'All') {
+      list = list.filter(
+        (product) =>
+          product.category?.toLowerCase() === activeCategory.toLowerCase()
+      );
+    }
+
+    // Filter by Search Term
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (p) =>
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q) ||
+          (p.category || '').toLowerCase().includes(q)
+      );
+    }
+
+    // Filter by Price Range
+    list = list.filter((p) => p.price <= maxPrice);
+
+    // Sorting Logic
+    list.sort((a, b) => {
+      if (sortBy === 'price-low') return a.price - b.price;
+      if (sortBy === 'price-high') return b.price - a.price;
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'newest') return String(b.id).localeCompare(String(a.id));
+      return 0; // 'featured' retains mockData order
+    });
+
+    return list;
+  }, [activeCategory, searchQuery, maxPrice, sortBy]);
+
+  // Pagination Logic (Limit 12 per page)
+  const totalPages =
+    Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedProducts = filteredAndSortedProducts.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+
+  const handleCategorySelect = (cat: string) => {
+    setActiveCategory(cat);
+    setCurrentPage(1);
+  };
 
   return (
     <>
       <Header />
       <div className="container mx-auto px-4 py-12 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        {/* Top Title & Search Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
-            <h1 className="text-4xl font-display uppercase tracking-wider">STORE & CATALOG</h1>
-            <p className="text-text-secondary mt-2">Discover premium authentic figures, apparel, and anime collectibles.</p>
+            <h1 className="text-4xl font-display uppercase tracking-wider">
+              STORE & CATALOG
+            </h1>
+            <p className="text-text-secondary mt-1 text-sm">
+              Discover premium authentic figures, apparel, COD passes, and collectibles.
+            </p>
           </div>
+
           <div className="flex items-center gap-3">
-            <Button variant="secondary" size="sm" className="gap-2">
-              <Filter className="h-4 w-4" /> Filters
-            </Button>
-            <Button variant="secondary" size="sm" className="gap-2">
-              Sort By <ChevronDown className="h-4 w-4" />
-            </Button>
+            {/* Search Input */}
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-9 pr-8 py-2 bg-surface border border-border/80 rounded-xl text-xs text-foreground focus:outline-none focus:border-primary transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-2 bg-surface border border-border/80 rounded-xl px-3 py-2">
+              <ArrowUpDown className="h-4 w-4 text-text-muted shrink-0" />
+              <select
+                value={sortBy}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="bg-transparent text-xs text-foreground focus:outline-none cursor-pointer"
+              >
+                <option value="featured" className="bg-surface">Featured</option>
+                <option value="price-low" className="bg-surface">Price: Low to High</option>
+                <option value="price-high" className="bg-surface">Price: High to Low</option>
+                <option value="rating" className="bg-surface">Highest Rated</option>
+                <option value="newest" className="bg-surface">Newest Arrivals</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Sidebar Filters */}
-          <aside className="lg:col-span-3 hidden lg:block space-y-8">
+          <aside className="lg:col-span-3 space-y-6">
+            {/* Category Filter Box */}
             <div className="bg-surface/80 rounded-3xl border border-border/60 p-6 shadow-xl">
-              <h3 className="font-display text-base mb-4 uppercase tracking-wider">Categories</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Filter className="h-4 w-4 text-primary" />
+                <h3 className="font-display text-base uppercase tracking-wider">Categories</h3>
+              </div>
               <div className="space-y-1.5">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      activeCategory === cat ? 'bg-primary text-foreground font-bold shadow-md shadow-primary/20' : 'text-text-secondary hover:bg-surface-elevated'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                {categories.map((cat) => {
+                  const isActive = activeCategory.toLowerCase() === cat.toLowerCase();
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => handleCategorySelect(cat)}
+                      className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-between ${
+                        isActive
+                          ? 'bg-primary text-foreground font-bold shadow-md shadow-primary/20'
+                          : 'text-text-secondary hover:bg-surface-elevated hover:text-foreground'
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      {isActive && <span className="h-2 w-2 rounded-full bg-foreground" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
+            {/* Price Filter Box */}
             <div className="bg-surface/80 rounded-3xl border border-border/60 p-6 shadow-xl space-y-4">
-              <h3 className="font-display text-base uppercase tracking-wider">Max Price</h3>
-              <input type="range" className="w-full accent-primary" min="0" max="500000" />
-              <div className="flex justify-between text-xs text-text-muted">
-                <span>₦0</span>
-                <span>₦500,000+</span>
+              <h3 className="font-display text-base uppercase tracking-wider">
+                Max Price: ₦{maxPrice.toLocaleString()}
+              </h3>
+              <input
+                type="range"
+                className="w-full accent-primary cursor-pointer"
+                min="1000"
+                max={highestProductPrice}
+                step="5000"
+                value={maxPrice}
+                onChange={(e) => {
+                  setMaxPrice(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              />
+              <div className="flex justify-between text-xs text-text-muted font-medium">
+                <span>₦1,000</span>
+                <span>₦{highestProductPrice.toLocaleString()}</span>
               </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-primary/10 via-surface to-background border border-primary/20 rounded-3xl p-6 shadow-xl">
-              <h4 className="font-bold text-primary text-sm mb-1">VIP Membership Discount</h4>
-              <p className="text-xs text-text-secondary mb-4">Get up to 15% off official figure pre-orders.</p>
-              <Button size="sm" className="w-full shadow-md shadow-primary/20">Join Pro Membership</Button>
             </div>
           </aside>
 
           {/* Product Grid */}
-          <div className="lg:col-span-9">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {PRODUCTS.map((product) => (
-                <div key={product.id} className="bg-surface/80 rounded-3xl border border-border/60 overflow-hidden group hover:border-primary/50 transition-all flex flex-col shadow-xl">
-                  <div className="relative aspect-square overflow-hidden bg-background">
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 left-4">
-                      {product.tags?.[0] && (
-                        <Badge variant="primary" className="text-[10px] font-bold uppercase">{product.tags[0]}</Badge>
-                      )}
-                    </div>
-                    <button className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-primary hover:text-foreground transition-all shadow-md">
-                      <ShoppingCart className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <div className="flex items-center gap-1 text-amber-400 mb-2">
-                        <Star className="h-3 w-3 fill-current" />
-                        <span className="text-xs font-bold text-foreground">{product.rating}</span>
-                        <span className="text-text-muted text-[10px] ml-1">(120)</span>
-                      </div>
-                      <h3 className="font-display text-base mb-2 group-hover:text-primary transition-colors line-clamp-1 uppercase tracking-wider">{product.name}</h3>
-                      <p className="text-text-secondary text-xs line-clamp-2 leading-relaxed">
-                        {product.description}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-lg font-bold text-foreground font-display">{product.currency}{product.price.toLocaleString()}</span>
-                      <Link href={`/shop/${product.id}`}>
-                        <Button size="sm" variant="outline">Details</Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          <div className="lg:col-span-9 space-y-6">
+            {/* Filter Summary Header */}
+            <div className="flex justify-between items-center text-xs text-text-muted">
+              <span>
+                Showing <strong className="text-foreground">{paginatedProducts.length}</strong> of{' '}
+                <strong className="text-foreground">{filteredAndSortedProducts.length}</strong> items
+              </span>
+              {(activeCategory !== 'All' || searchQuery || maxPrice < highestProductPrice) && (
+                <button
+                  onClick={() => {
+                    setActiveCategory('All');
+                    setSearchQuery('');
+                    setMaxPrice(highestProductPrice);
+                    setCurrentPage(1);
+                  }}
+                  className="text-primary hover:underline font-bold"
+                >
+                  Reset All Filters
+                </button>
+              )}
             </div>
 
-            <div className="mt-12 flex justify-center items-center gap-2">
-              <Button variant="secondary" size="icon" className="w-9 h-9 font-bold">1</Button>
-              <Button variant="ghost" size="icon" className="w-9 h-9">2</Button>
-              <Button variant="ghost" size="icon" className="w-9 h-9">3</Button>
-              <span className="px-2 text-text-muted text-xs">...</span>
-              <Button variant="ghost" size="icon" className="w-9 h-9">10</Button>
-            </div>
+            {paginatedProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedProducts.map((product) => {
+                  const name = product.name;
+                  const image = product.images?.[0];
+                  const badgeTag = product.tags?.[0];
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="bg-surface/80 rounded-3xl border border-border/60 overflow-hidden group hover:border-primary/50 transition-all flex flex-col justify-between shadow-xl"
+                    >
+                      <div>
+                        <div className="relative aspect-square overflow-hidden bg-background">
+                          <img
+                            src={image}
+                            alt={name}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          {badgeTag && (
+                            <div className="absolute top-4 left-4">
+                              <Badge variant="primary" className="text-[10px] font-bold uppercase bg-primary text-black">
+                                {badgeTag}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="p-5 space-y-2">
+                          <div className="flex items-center gap-1 text-amber-400">
+                            <Star className="h-3 w-3 fill-current" />
+                            <span className="text-xs font-bold text-foreground">
+                              {product.rating || '5.0'}
+                            </span>
+                          </div>
+                          <h3 className="font-display text-base group-hover:text-primary transition-colors line-clamp-1 uppercase tracking-wider">
+                            {name}
+                          </h3>
+                          <p className="text-text-secondary text-xs line-clamp-2 leading-relaxed">
+                            {product.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-5 pt-0 flex items-center justify-between border-t border-border/40 mt-4">
+                        <span className="text-lg font-bold text-foreground font-display">
+                          {product.currency || '₦'}{product.price.toLocaleString()}
+                        </span>
+                        <Link href={`/shop/${product.id}`}>
+                          <Button size="sm" variant="outline" className="gap-1 text-xs">
+                            <ShoppingCart className="h-3.5 w-3.5" /> Details
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="bg-surface/40 rounded-3xl border border-border p-12 text-center my-8">
+                <SlidersHorizontal className="h-12 w-12 text-text-muted mx-auto mb-3 opacity-30" />
+                <h3 className="font-display text-lg mb-1">No products match your criteria</h3>
+                <p className="text-xs text-text-secondary mb-6">
+                  Try adjusting your category selection or increasing the price limit.
+                </p>
+                <Button
+                  onClick={() => {
+                    setActiveCategory('All');
+                    setSearchQuery('');
+                    setMaxPrice(highestProductPrice);
+                    setCurrentPage(1);
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            )}
+
+            {/* Pagination Numeration Bar (Limit 12 per page) */}
+            {totalPages > 1 && (
+              <div className="mt-10 flex justify-center items-center gap-2 pt-6 border-t border-border/60">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  className="gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" /> Prev
+                </Button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`h-9 w-9 rounded-xl text-xs font-bold transition-all ${
+                        currentPage === page
+                          ? 'bg-primary text-foreground font-extrabold shadow-md shadow-primary/20 scale-105'
+                          : 'bg-surface border border-border/60 text-text-secondary hover:text-foreground'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  className="gap-1"
+                >
+                  Next <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
