@@ -10,7 +10,6 @@ import {
   Plus,
   Minus,
   ArrowRight,
-  ShoppingCart,
   Loader2,
   ShoppingBag,
 } from 'lucide-react';
@@ -97,7 +96,7 @@ export default function CartPage() {
               Your cart is empty
             </h2>
             <p className="text-text-secondary text-xs max-w-md mx-auto">
-              Looks like you haven't added any anime apparel, figures, or COD passes to your cart yet.
+              Looks like you haven&apos;t added any anime apparel, figures, or COD passes to your cart yet.
             </p>
             <div className="pt-2">
               <Link href="/shop">

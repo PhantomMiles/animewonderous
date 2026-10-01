@@ -4,6 +4,8 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 type State =
   | { phase: 'checking' }
@@ -42,13 +44,15 @@ function VerifyContent() {
   }, [reference]);
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-24 lg:px-8">
       <div className="max-w-md mx-auto text-center bg-surface border border-border rounded-3xl p-10">
         {state.phase === 'checking' && (
           <>
             <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin text-primary" />
             <h1 className="text-2xl font-display mb-2">Confirming payment…</h1>
-            <p className="text-text-secondary text-sm">Please don't close this page.</p>
+            <p className="text-text-secondary text-sm">Please don&apos;t close this page.</p>
           </>
         )}
 
@@ -78,6 +82,8 @@ function VerifyContent() {
         )}
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
 

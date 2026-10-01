@@ -36,8 +36,12 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Legacy & Surface aliases */
+  /* Legacy & Surface aliases (used throughout src/pages/*.tsx) */
   --color-surface: var(--card);
+  --color-surface-elevated: var(--popover);
+  --color-text-secondary: var(--muted-foreground);
+  --color-text-muted: var(--text-muted);
+  --font-display: var(--font-display);
 
   /* Animewonderous Custom Brand Palette */
   --color-aw-orange: #FF7A00;
@@ -82,6 +86,7 @@
   
   --muted: #111820;
   --muted-foreground: #AAB4C0; /* Text Secondary */
+  --text-muted: #6B7684; /* Text Muted - dimmer than Text Secondary */
   
   --accent: #111820;
   --accent-foreground: #FF7A00;
@@ -125,6 +130,7 @@
   
   --muted: #F4F4F5;
   --muted-foreground: #71717A;
+  --text-muted: #A1A1AA; /* Text Muted - dimmer than Text Secondary */
   
   --accent: #F4F4F5;
   --accent-foreground: #FF7A00;

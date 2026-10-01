@@ -1,0 +1,57 @@
+// Prisma schema for AnimeWonderous orders.
+// Run `npx prisma migrate dev --name init` after setting DATABASE_URL to create the tables.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Vercel's "Create Database" -> Postgres flow provisions Prisma Postgres by
+  // default, which only sets DATABASE_URL (no separate pooled/direct split).
+  // If you instead connect a Neon or Supabase database through the Vercel
+  // Marketplace, uncomment the line below and set DIRECT_URL to its
+  // non-pooling connection string (needed for `prisma migrate`):
+  // directUrl = env("DIRECT_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  // Paystack's transaction reference. Unique so the webhook can be replayed safely.
+  reference     String      @unique
+  status        OrderStatus @default(PENDING)
+  customerEmail String
+  subtotal      Int // NGN, whole naira (matches mockData.ts prices)
+  shipping      Int
+  total         Int
+  currency      String      @default("NGN")
+  paidAt        DateTime?
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([customerEmail])
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  // Snapshot fields: copied from the product catalogue at purchase time so
+  // this row stays accurate even if the product's price or name changes later.
+  productId   String
+  productName String
+  unitPrice   Int
+  quantity    Int
+
+  @@index([orderId])
+}

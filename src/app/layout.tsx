@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider"; // adjust import path if needed
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+});
+
+// Backs the `font-display` utility used on headings across src/pages/*.tsx.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} dark antialiased`} >
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} dark antialiased`} >
       <body className="min-h-full bg-background text-foreground flex flex-col font-sans" suppressHydrationWarning>
         <ThemeProvider>
           {children}
