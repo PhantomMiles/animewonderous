@@ -1,4 +1,7 @@
-import "dotenv/config";
+import { config } from "dotenv";
+// Next.js loads .env.local on top of .env; replicate that here so `prisma migrate dev` works locally.
+config({ path: ".env" });
+config({ path: ".env.local", override: true });
 import { defineConfig } from "prisma/config";
 
 // The datasource URL itself stays in prisma/schema.prisma (the classic,
