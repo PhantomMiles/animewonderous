@@ -14,7 +14,7 @@ type State =
 
 function VerifyContent() {
   const params = useSearchParams();
-  const reference = params.get('reference') || params.get('trxref');
+  const reference = params?.get('reference') || params?.get('trxref');
   const [state, setState] = useState<State>({ phase: 'checking' });
 
   useEffect(() => {
