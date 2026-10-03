@@ -1,16 +1,20 @@
-import { config } from "dotenv";
-// Next.js loads .env.local on top of .env; replicate that here so `prisma migrate dev` works locally.
-config({ path: ".env" });
-config({ path: ".env.local", override: true });
-import { defineConfig } from "prisma/config";
+import { config as loadEnv } from "dotenv";
+import { defineConfig, env } from "prisma/config";
 
-// The datasource URL itself stays in prisma/schema.prisma (the classic,
-// version-stable location) — this file just tells the Prisma CLI where
-// to find the schema and migrations.
+// The Prisma CLI only auto-loads a plain `.env` by default. This project's
+// real values live in `.env.local` (written by `vercel env pull`, same file
+// Next.js itself reads) — so load both explicitly, with `.env.local`
+// overriding, matching Next.js's own precedence.
+loadEnv({ path: ".env" });
+loadEnv({ path: ".env.local", override: true });
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
-    seed: "npx tsx prisma/seed.ts",
+    seed: "tsx prisma/seed.ts",
+  },
+  datasource: {
+    url: env("DATABASE_URL"),
   },
 });

@@ -2,16 +2,18 @@
 // Run `npx prisma migrate dev --name init` after setting DATABASE_URL to create the tables,
 // then `npx prisma db seed` to load the current mockData.ts content into them.
 
+// Prisma 7: "prisma-client-js" (generating into node_modules) is on its way
+// out, replaced by "prisma-client" with an explicit output path. The
+// connection URL itself also moved out of this file entirely — it now lives
+// in prisma.config.ts (CLI/migrations) and is passed to a driver adapter at
+// runtime (see src/lib/prisma.ts and prisma/seed.ts).
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  // Uncomment if you connect a Neon/Supabase-style pooled provider instead of
-  // Prisma Postgres (see schema.prisma history for context):
-  // directUrl = env("DIRECT_URL")
 }
 
 // =====================================================================
