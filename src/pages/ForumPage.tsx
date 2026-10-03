@@ -104,13 +104,13 @@ export default function ForumPage() {
                </p>
                <div className="flex items-center gap-6 mt-6 pt-6 border-t border-border">
                   <button className="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors text-sm font-medium">
-                     <MessageSquare className="h-4 w-4" /> {post.replies} Replies
+                     <MessageSquare className="h-4 w-4" /> {post.replies} 
                   </button>
                   <button className="flex items-center gap-2 text-text-secondary hover:text-pink-500 transition-colors text-sm font-medium">
-                     <Heart className="h-4 w-4" /> {post.likes} Likes
+                     <Heart className="h-4 w-4" /> {post.likes}
                   </button>
                   <button className="flex items-center gap-2 text-text-secondary hover:text-foreground transition-colors text-sm font-medium">
-                     <Share2 className="h-4 w-4" /> Share
+                     <Share2 className="h-4 w-4" />
                   </button>
                </div>
              </motion.div>

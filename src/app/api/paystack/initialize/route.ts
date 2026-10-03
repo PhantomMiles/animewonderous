@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { PRODUCTS } from '../../../../data/mockData';
+import { prisma } from '../../../../lib/prisma';
 import { initializeTransaction } from '../../../../lib/paystack';
 
 const SHIPPING_FEE = 5000; // NGN, matches the cart summary
@@ -23,15 +23,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
-    // Price is always computed on the server from our own catalogue.
-    // Never trust an amount sent from the browser.
+    const requested = items as CartLine[];
+    const ids = requested.map((i) => i?.id).filter((id): id is string => typeof id === 'string');
+
+    // Price and stock are always checked against the database, never the
+    // browser. This is the same lookup the webhook will use to fulfill the
+    // order, so a product renamed or restocked between these two calls
+    // can't desync — both read the same source of truth.
+    const products = await prisma.product.findMany({ where: { id: { in: ids } } });
+    const productsById = new Map(products.map((p) => [p.id, p]));
+
     let subtotal = 0;
     const lines: CartLine[] = [];
-    for (const raw of items as CartLine[]) {
-      const product = PRODUCTS.find((p) => p.id === raw?.id);
+    for (const raw of requested) {
+      const product = productsById.get(raw?.id);
       const quantity = Math.floor(Number(raw?.quantity));
       if (!product || !Number.isFinite(quantity) || quantity < 1 || quantity > 50) {
         return NextResponse.json({ error: 'Invalid cart item' }, { status: 400 });
+      }
+      if (quantity > product.stock) {
+        return NextResponse.json(
+          { error: `Only ${product.stock} left of "${product.name}"` },
+          { status: 400 }
+        );
       }
       subtotal += product.price * quantity;
       lines.push({ id: product.id, quantity });

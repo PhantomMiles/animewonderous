@@ -1,5 +1,6 @@
-// Prisma schema for AnimeWonderous orders.
-// Run `npx prisma migrate dev --name init` after setting DATABASE_URL to create the tables.
+// Prisma schema for AnimeWonderous.
+// Run `npx prisma migrate dev --name init` after setting DATABASE_URL to create the tables,
+// then `npx prisma db seed` to load the current mockData.ts content into them.
 
 generator client {
   provider = "prisma-client-js"
@@ -8,13 +9,112 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // Vercel's "Create Database" -> Postgres flow provisions Prisma Postgres by
-  // default, which only sets DATABASE_URL (no separate pooled/direct split).
-  // If you instead connect a Neon or Supabase database through the Vercel
-  // Marketplace, uncomment the line below and set DIRECT_URL to its
-  // non-pooling connection string (needed for `prisma migrate`):
+  // Uncomment if you connect a Neon/Supabase-style pooled provider instead of
+  // Prisma Postgres (see schema.prisma history for context):
   // directUrl = env("DIRECT_URL")
 }
+
+// =====================================================================
+// CATALOG — content you manage (merch, events, tiers, communities).
+// IDs are kept as the same human-readable slugs mockData.ts already uses
+// ("prod-001", "shibuya-fest-3", ...) so existing /shop/[id] and
+// /events/[id] routes keep working unchanged once pages read from here.
+// =====================================================================
+
+model Product {
+  id          String      @id
+  name        String
+  category    String
+  price       Int // NGN, whole naira
+  currency    String      @default("₦")
+  rating      Float       @default(0)
+  images      String[]
+  description String
+  stock       Int         @default(0)
+  tags        String[]
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Event {
+  id                String               @id
+  title             String
+  date              String // kept as display text ("December 2026") — marketing copy, not a precise timestamp
+  location          String
+  category          String
+  price             Int
+  image             String
+  description       String
+  featured          Boolean              @default(false)
+  hasUniversityHubs Boolean              @default(false)
+  universityHubs    EventUniversityHub[]
+  ticketTiers       TicketTier[]
+  orderItems        OrderItem[]
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+}
+
+// CODEN_ENUGU_UNIVERSITIES — campus hubs, scoped to whichever event lists them
+// (only CODEN has hasUniversityHubs = true today, but this isn't hardcoded to it).
+model EventUniversityHub {
+  id       String @id @default(cuid())
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId  String
+  name     String
+  location String
+  role     String
+
+  @@index([eventId])
+}
+
+// ANIME_TICKET_TIERS and CODEN_TICKET_TIERS, now actually linked to their
+// event by eventId instead of the hardcoded if/else in getTicketTiersForEvent().
+model TicketTier {
+  id         String      @id
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    String
+  title      String
+  theme      String
+  capacity   String // display label, e.g. "4 - 5 People (Squad)"
+  groupSize  Int
+  price      Int
+  perks      String[]
+  orderItems OrderItem[]
+
+  @@index([eventId])
+}
+
+model Community {
+  id          String   @id
+  name        String
+  avatar      String
+  banner      String
+  verified    Boolean  @default(false)
+  memberCount Int      @default(0)
+  tags        String[]
+  description String
+}
+
+// Author fields stay denormalized (name/avatar/verified) rather than a real
+// User relation, since there's no auth system yet — see the note below.
+model ForumPost {
+  id             String   @id @default(cuid())
+  title          String
+  body           String
+  category       String
+  authorName     String
+  authorAvatar   String
+  authorVerified Boolean  @default(false)
+  replies        Int      @default(0)
+  likes          Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+// =====================================================================
+// ORDERS & PAYMENTS — one Order can now mix merch (PRODUCT) and event
+// passes (TICKET) in the same checkout, each snapshotted at purchase time.
+// =====================================================================
 
 enum OrderStatus {
   PENDING
@@ -23,14 +123,18 @@ enum OrderStatus {
   REFUNDED
 }
 
+enum OrderItemKind {
+  PRODUCT
+  TICKET
+}
+
 model Order {
   id            String      @id @default(cuid())
-  // Paystack's transaction reference. Unique so the webhook can be replayed safely.
-  reference     String      @unique
+  reference     String      @unique // Paystack transaction reference
   status        OrderStatus @default(PENDING)
   customerEmail String
-  subtotal      Int // NGN, whole naira (matches mockData.ts prices)
-  shipping      Int
+  subtotal      Int
+  shipping      Int         @default(0)
   total         Int
   currency      String      @default("NGN")
   paidAt        DateTime?
@@ -42,16 +146,52 @@ model Order {
 }
 
 model OrderItem {
-  id      String @id @default(cuid())
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id      String        @id @default(cuid())
+  order   Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId String
+  kind    OrderItemKind
 
-  // Snapshot fields: copied from the product catalogue at purchase time so
-  // this row stays accurate even if the product's price or name changes later.
-  productId   String
-  productName String
-  unitPrice   Int
-  quantity    Int
+  // Snapshot fields: copied from the catalog at purchase time, so this row
+  // stays accurate even if the product/tier is edited or removed later.
+  name      String
+  unitPrice Int
+  quantity  Int
+
+  product      Product?    @relation(fields: [productId], references: [id])
+  productId    String?
+  event        Event?      @relation(fields: [eventId], references: [id])
+  eventId      String?
+  ticketTier   TicketTier? @relation(fields: [ticketTierId], references: [id])
+  ticketTierId String?
+
+  // Issued once this line item's order is marked PAID, for kind = TICKET.
+  tickets Ticket[]
 
   @@index([orderId])
 }
+
+enum TicketStatus {
+  VALID
+  USED
+  EXPIRED
+}
+
+// Replaces MOCK_TICKETS — generated by the webhook, not hand-authored.
+model Ticket {
+  id          String       @id @default(cuid())
+  orderItem   OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId String
+  code        String       @unique // backs the QR payload, e.g. api.qrserver.com/...?data={code}
+  status      TicketStatus @default(VALID)
+  createdAt   DateTime     @default(now())
+
+  @@index([orderItemId])
+}
+
+// =====================================================================
+// NOT modeled yet, on purpose: a real User table, per-user order/ticket
+// history, and forum post authorship tied to an account. AuthModal.tsx is
+// UI-only right now — adding real Users needs an auth decision first
+// (NextAuth, Supabase Auth, Clerk, etc.) so that's left for Phase 2.
+// Orders are tracked by customerEmail in the meantime, same as today.
+// =====================================================================

@@ -478,7 +478,7 @@ export const EVENTS: EventItem[] = [
     location: 'Enugu, Nigeria',
     category: 'Anime & Cosplay',
     price: 3000,
-    image: '../../../bg-img/shibuya-fest-3.0.jpg',
+    image: '/bg-img/shibuya-fest-3.0.jpg',
     description:
       'Enugu’s premier gaming, cosplay, and Japanese pop-culture festival returning for its third monumental edition.',
     featured: true,
@@ -726,9 +726,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/goku-ultra-instinct-statue.jpg',
-      '../../merch/ultra-instinct-2.jpg',
-      '../../merch/ultra-instinct-3.jpg'
+      '/merch/goku-ultra-instinct-statue.jpg',
+      '/merch/ultra-instinct-2.jpg',
+      '/merch/ultra-instinct-3.jpg'
     ],
     description:
       'Hand-painted master grade collectible statue depicting Ultra Instinct Son Goku with dynamic aura translucency and integrated LED pedestal light.',
@@ -743,8 +743,8 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.8,
     images: [
-      '../../merch/cyberpunk-katana-1.jpg',
-      '../../merch/cyberpunk-katana-2.jpg'
+      '/merch/cyberpunk-katana-1.jpg',
+      '/merch/cyberpunk-katana-2.jpg'
     ],
     description:
       'High-grade decorative cosplay katana featuring neon accent trims and custom laser-etched scabbard.',
@@ -755,12 +755,13 @@ export const PRODUCTS: ProductItem[] = [
     id: 'prod-003',
     name: 'Shibuya Fest 3.0 Official Oversized Hoodie',
     category: 'Apparel',
-    price: 25000,
+    price: 10000,
     currency: '₦',
     rating: 4.7,
     images: [
-      '../../merch/shibuya-fest-hoodie-1.jpg',
-      '../../merch/shibuya-fest-hoodie-2.jpg'
+      '/merch/shibuya-fest-hoodie-1.jpg',
+      '/merch/shibuya-fest-hoodie-2.jpg',
+      '/merch/shibuya-fest-hoodie-3.jpg',
     ],
     description:
       'Heavyweight 400gsm cotton fleece hoodie with high-density Shibuya Fest back artwork and embroidered anime sleeve patches.',
@@ -775,8 +776,8 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 5.0,
     images: [
-      '../../merch/hashira-artbook-1.jpg',
-      '../../merch/hashira-artbook-2.jpg'
+      '/merch/hashira-artbook-1.jpg',
+      '/merch/hashira-artbook-2.jpg'
     ],
     description:
       'Official hardcover concept art collection featuring full-color character illustrations, production notes, and exclusive key visual sketches.',
@@ -791,7 +792,7 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/akatsuki-hoodie.jpg',
+      '/merch/akatsuki-hoodie.jpg',
     ],
     description: 'Comfortable and stylish Akastuki hoodie that makes you stand out from the crowd. Join the Akatsuki with this cool hoodie',
     stock: 50,
@@ -805,7 +806,7 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/gojo.jpg',
+      '/merch/gojo.jpg',
     ],
     description: 'A cool and detailed Gojo statue, that brings the aura to your living space wherever you put it.',
     stock: 50,
@@ -819,7 +820,7 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/poke-keychain.jpg',
+      '/merch/poke-keychain.jpg',
     ],
     description: 'A cool and detailed Pokemon keychain set.',
     stock: 50,
@@ -833,7 +834,7 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/demon-slayer-hoodie.jpg',
+      '/merch/demon-slayer-hoodie.jpg',
     ],
     description: 'A cool and detailed Demon Slayer hoodie.',
     stock: 50,
@@ -847,9 +848,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/hashira-keychain-1.jpg',
-      '../../merch/hashira-keychain-2.jpg',
-      '../../merch/hashira-keychain-3.jpg',
+      '/merch/hashira-keychain-1.jpg',
+      '/merch/hashira-keychain-2.jpg',
+      '/merch/hashira-keychain-3.jpg',
     ],
     description: 'A cool and detailed Demon Slayer Hashira keychain set.',
     stock: 50,
@@ -863,7 +864,7 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/straw-hat.jpg',
+      '/merch/straw-hat.jpg',
     ],
     description: 'This straw hat makes you look and feel like you are the aspiring Pirate King.',
     stock: 50,
@@ -877,9 +878,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/tokyo-revengers-1.jpg',
-      '../../merch/tokyo-revengers-2.jpg',
-      '../../merch/tokyo-revengers-3.jpg',
+      '/merch/tokyo-revengers-1.jpg',
+      '/merch/tokyo-revengers-2.jpg',
+      '/merch/tokyo-revengers-3.jpg',
     ],
     description: 'Show your love for Tokyo Revengers with this cool hoodie.',
     stock: 50,
@@ -893,9 +894,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/zoro-1.jpg',
-      '../../merch/zoro-2.jpg',
-      '../../merch/zoro-3.jpg',
+      '/merch/zoro-1.jpg',
+      '/merch/zoro-2.jpg',
+      '/merch/zoro-3.jpg',
     ],
     description: 'Show your love for Zoro with this cool hoodie.',
     stock: 50,
@@ -909,9 +910,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/luffy-1.jpg',
-      '../../merch/luffy-2.jpg',
-      '../../merch/luffy-3.jpg',
+      '/merch/luffy-1.jpg',
+      '/merch/luffy-2.jpg',
+      '/merch/luffy-3.jpg',
     ],
     description: 'A cool and detailed Monkey D Luffy hoodie.',
     stock: 50,
@@ -925,9 +926,9 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/naruto-figure-1.jpg',
-      '../../merch/naruto-figure-2.jpg',
-      '../../merch/naruto-figure-3.jpg',
+      '/merch/naruto-figure-1.jpg',
+      '/merch/naruto-figure-2.jpg',
+      '/merch/naruto-figure-3.jpg',
     ],
     description: 'A cool and detailed Naruto action figure.',
     stock: 50,
@@ -941,13 +942,29 @@ export const PRODUCTS: ProductItem[] = [
     currency: '₦',
     rating: 4.9,
     images: [
-      '../../merch/naruto-ring-1.jpg',
-      '../../merch/naruto-ring-2.jpg',
-      '../../merch/naruto-ring-3.jpg',
+      '/merch/naruto-ring-1.jpg',
+      '/merch/naruto-ring-2.jpg',
+      '/merch/naruto-ring-3.jpg',
     ],
     description: 'Show your love for Naruto with this cool Konoha rings.',
     stock: 50,
     tags: ['Anime', 'Accessories'],
+  },
+  {
+    id: 'prod-016',
+    name: 'Shibuya Fest Sweatpants',
+    category: 'Apparel',
+    price: 10000,
+    currency: '₦',
+    rating: 4.9,
+    images: [
+      '/merch/shibuya-fest-sweats-1.jpg',
+      '/merch/shibuya-fest-sweats-2.jpg',
+      '/merch/shibuya-fest-sweats-3.jpg',
+    ],
+    description: 'A cool and detailed Shibuya Fest sweatpants.',
+    stock: 50,
+    tags: ['Official Merch', 'Hot Item'],
   },
 ];
 

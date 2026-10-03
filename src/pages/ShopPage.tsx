@@ -18,6 +18,7 @@ import {
   X,
   SlidersHorizontal,
 } from 'lucide-react';
+import Image from 'next/image';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -233,7 +234,7 @@ export default function ShopPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedProducts.map((product) => {
                   const name = product.name;
-                  const image = product.images?.[0];
+                  const image = product.images?.[0] || '/merch/shibuya-fest-hoodie-1.jpg';
                   const badgeTag = product.tags?.[0];
 
                   return (
@@ -243,9 +244,11 @@ export default function ShopPage() {
                     >
                       <div>
                         <div className="relative aspect-square overflow-hidden bg-background">
-                          <img
+                          <Image
                             src={image}
                             alt={name}
+                            width={500}
+                            height={500}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                           {badgeTag && (
@@ -278,8 +281,8 @@ export default function ShopPage() {
                           {product.currency || '₦'}{product.price.toLocaleString()}
                         </span>
                         <Link href={`/shop/${product.id}`}>
-                          <Button size="sm" variant="outline" className="gap-1 text-xs">
-                            <ShoppingCart className="h-3.5 w-3.5" /> Details
+                          <Button size="sm" variant="outline" className="gap-1 text-xs cursor-pointer hover:bg-primary hover:text-white">
+                            Details
                           </Button>
                         </Link>
                       </div>
