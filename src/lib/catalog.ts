@@ -56,7 +56,13 @@ export function getCommunityById(id: string) {
 }
 
 export function getForumPosts() {
-  return prisma.forumPost.findMany({ orderBy: { createdAt: 'desc' } });
+  return prisma.forumPost.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      author: true,
+      _count: { select: { comments: true, likes: true } }
+    }
+  });
 }
 
 // --- Orders & tickets ---

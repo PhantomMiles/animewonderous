@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { EVENTS } from '../data/mockData';
+
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import {
@@ -16,7 +16,9 @@ import { motion } from 'motion/react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
-export default function EventsPage() {
+type Props = { initialEvents: any[] };
+
+export default function EventsPage({ initialEvents }: Props) {
   return (
     <>
       <Header />
@@ -91,7 +93,7 @@ export default function EventsPage() {
 
           {/* Events List */}
           <div className="lg:col-span-8 space-y-6">
-            {EVENTS.map((event, index) => (
+            {initialEvents.map((event: any, index: number) => (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 15 }}

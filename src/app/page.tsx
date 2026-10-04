@@ -1,20 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import HomePage from "../pages/HomePage";
-import Loading from "./loading"; // Update path if stored elsewhere
+import { getProducts, getEvents, getForumPosts } from "../lib/catalog";
 
-export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+export default async function Home() {
+  const products = await getProducts();
+  const events = await getEvents();
+  const forumPosts = await getForumPosts();
 
-  if (isLoading) {
-    return (
-      <Loading 
-        duration={5000} // Adjust time in ms (e.g., 2000 = 2 seconds)
-        onComplete={() => setIsLoading(false)} 
-      />
-    );
-  }
-
-  return <HomePage />;
+  return <HomePage products={products} events={events} forumPosts={forumPosts} />;
 }
