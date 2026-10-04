@@ -1,14 +1,14 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product } from '../data/mockData';
+import { ProductItem } from '../data/mockData';
 
-export interface CartItem extends Product {
+export interface CartItem extends ProductItem {
   quantity: number;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
+  addToCart: (product: ProductItem, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -41,7 +41,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [cart, isLoaded]);
 
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = (product: ProductItem, quantity: number = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
