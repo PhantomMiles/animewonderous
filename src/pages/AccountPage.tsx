@@ -1,26 +1,117 @@
 'use client';
 
-import { User, Settings, ShoppingBag, Calendar, MessageSquare, CreditCard, LogOut, ShieldCheck, Mail, MapPin, ChevronRight, Package, Trash2, ExternalLink, Plus, Heart, Sparkles } from 'lucide-react';
+import { User, Settings, ShoppingBag, Calendar, MessageSquare, CreditCard, LogOut, ShieldCheck, Mail, ChevronRight, Package, Trash2, ExternalLink, Plus, Heart, Sparkles, Users } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { cn } from '../lib/utils';
-import { PRODUCTS, EVENTS, FORUM_POSTS } from '../data/mockData';
+import { CldUploadWidget } from 'next-cloudinary';
+import { updateUserProfile } from '../app/actions';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
-type AccountTab = 'overview' | 'orders' | 'events' | 'discussions' | 'billing' | 'settings';
+type AccountTab = 'overview' | 'orders' | 'events' | 'discussions' | 'settings';
 
-export default function AccountPage() {
+type Props = {
+  user: {
+    id: string;
+    username: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+    banner: string | null;
+    role: string;
+    createdAt: string;
+    forumPosts: Array<{
+      id: string;
+      title: string;
+      category: string;
+      createdAt: string;
+      _count: { comments: number; likes: number };
+    }>;
+    communityMemberships: Array<{
+      role: string;
+      community: {
+        id: string;
+        name: string;
+        avatar: string;
+      };
+    }>;
+  };
+  tickets: any[];
+  orders: any[];
+};
+
+export default function AccountPage({ user, tickets, orders }: Props) {
   const [activeTab, setActiveTab] = useState<AccountTab>('overview');
+  const [isPending, startTransition] = useTransition();
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [displayName, setDisplayName] = useState(user.name || user.username);
+  const [currentImage, setCurrentImage] = useState(user.image || '/images/avatars/default.webp');
+  const [currentBanner, setCurrentBanner] = useState(user.banner || null);
+  const { update } = useSession();
+  const router = useRouter();
+
+  const presetAvatars = [
+    '/images/avatars/default.webp',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Felix',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Aneka',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Jasper',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Mia',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Ryker'
+  ];
+
+  function showSuccess() {
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  }
+
+  function handleSelectAvatar(url: string) {
+    setCurrentImage(url);
+    startTransition(async () => {
+      await updateUserProfile({ image: url });
+      await update({ image: url });
+      router.refresh();
+      showSuccess();
+    });
+  }
+
+  function handleUploadAvatar(secureUrl: string) {
+    setCurrentImage(secureUrl);
+    startTransition(async () => {
+      await updateUserProfile({ image: secureUrl });
+      await update({ image: secureUrl });
+      router.refresh();
+      showSuccess();
+    });
+  }
+
+  function handleUploadBanner(secureUrl: string) {
+    setCurrentBanner(secureUrl);
+    startTransition(async () => {
+      await updateUserProfile({ banner: secureUrl });
+      router.refresh();
+      showSuccess();
+    });
+  }
+
+  function handleSaveName(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      await updateUserProfile({ name: fd.get('name') as string });
+      showSuccess();
+    });
+  }
 
   const navItems = [
     { id: 'overview', name: 'Overview', icon: User },
     { id: 'orders', name: 'My Orders', icon: ShoppingBag },
-    { id: 'events', name: 'Events Joined', icon: Calendar },
+    { id: 'events', name: 'Events & Tickets', icon: Calendar },
     { id: 'discussions', name: 'Discussions', icon: MessageSquare },
-    { id: 'billing', name: 'Billing', icon: CreditCard },
     { id: 'settings', name: 'Settings', icon: Settings },
   ];
 
@@ -30,27 +121,40 @@ export default function AccountPage() {
         return (
           <div className="space-y-8">
             <div className="bg-surface/80 backdrop-blur-xl rounded-3xl border border-border/60 overflow-hidden shadow-2xl relative">
-              <div className="h-56 bg-gradient-to-r from-primary/30 via-purple-600/20 to-blue-600/30 relative overflow-hidden">
+              <div 
+                className={`h-56 relative overflow-hidden bg-cover bg-center ${!currentBanner ? 'bg-gradient-to-r from-primary/30 via-purple-600/20 to-blue-600/30' : ''}`}
+              >
+                {currentBanner && <img src={currentBanner} alt="Banner" className="w-full h-full object-cover" />}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent"></div>
-                <div className="absolute top-4 right-4 bg-background/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-xs font-mono text-primary flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" /> VIP MEMBER
-                </div>
+                {user.role === 'SUPERADMIN' && (
+                  <div className="absolute top-4 right-4 bg-background/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-xs font-mono text-primary flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5" /> SUPER ADMIN
+                  </div>
+                )}
               </div>
               <div className="p-8 pt-0 -mt-20 relative">
                 <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
                   <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left w-full md:w-auto">
                     <div className="h-36 w-36 rounded-3xl border-4 border-background bg-surface overflow-hidden shadow-2xl relative group ring-2 ring-primary/40 shrink-0">
-                      <img src="https://i.pravatar.cc/150?u=5" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Profile" />
-                      <button onClick={() => setActiveTab('settings')} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs">
+                      <img 
+                        src={currentImage} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        alt="Profile" 
+                      />
+                      <button 
+                        onClick={() => setActiveTab('settings')} 
+                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
+                      >
                         <Settings className="h-6 w-6 text-white" />
                       </button>
                     </div>
                     <div className="pb-2">
                       <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                        <h2 className="text-3xl font-display font-bold">Wonderous Boy</h2>
-                        <ShieldCheck className="h-6 w-6 text-primary fill-primary/20" />
+                        <h2 className="text-3xl font-display font-bold">{user.name || user.username}</h2>
+                        {user.role === 'SUPERADMIN' && <ShieldCheck className="h-6 w-6 text-primary fill-primary/20" />}
                       </div>
-                      <p className="text-text-secondary text-sm">@wonderous_boy • Anime Collector & Cosplayer</p>
+                      <p className="text-text-secondary text-sm">@{user.username}</p>
+                      {user.email && <p className="text-text-muted text-xs mt-1 flex items-center gap-1.5"><Mail className="h-3 w-3" />{user.email}</p>}
                     </div>
                   </div>
                   <div className="pb-2 w-full md:w-auto flex justify-center">
@@ -68,7 +172,7 @@ export default function AccountPage() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Orders</p>
-                    <p className="font-display font-bold text-xl">24 Active</p>
+                    <p className="font-display font-bold text-xl">{orders.length} Total</p>
                   </div>
                 </button>
                 <button onClick={() => setActiveTab('events')} className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/80 hover:border-blue-500/50 transition-all hover:translate-y-[-2px] text-left group">
@@ -76,8 +180,8 @@ export default function AccountPage() {
                     <Calendar className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Events</p>
-                    <p className="font-display font-bold text-xl">08 Attending</p>
+                    <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Tickets</p>
+                    <p className="font-display font-bold text-xl">{tickets.length} Purchased</p>
                   </div>
                 </button>
                 <button onClick={() => setActiveTab('discussions')} className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 border border-border/80 hover:border-purple-500/50 transition-all hover:translate-y-[-2px] text-left group">
@@ -86,231 +190,251 @@ export default function AccountPage() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Posts</p>
-                    <p className="font-display font-bold text-xl">142 Threads</p>
+                    <p className="font-display font-bold text-xl">{user.forumPosts.length} Threads</p>
                   </div>
                 </button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Community Memberships */}
               <div className="bg-surface/80 rounded-3xl border border-border/60 p-8 shadow-xl">
                 <h3 className="font-display text-lg mb-6 uppercase tracking-wider flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" /> About Me
+                  <Users className="h-5 w-5 text-primary" /> My Communities
                 </h3>
-                <p className="text-text-secondary text-sm leading-relaxed mb-6">
-                  Hardcore anime fan since 2012. Passionate figure collector, community builder, and convention enthusiast. Always ready to discuss upcoming seasonal anime and manga theories!
-                </p>
-                <div className="space-y-3 pt-4 border-t border-border/50">
-                  <div className="flex items-center gap-3 text-sm text-text-secondary">
-                    <Mail className="h-4 w-4 text-primary" /> ansell.ok@example.com
+                {user.communityMemberships.length === 0 ? (
+                  <div className="text-center py-6">
+                    <p className="text-text-muted text-sm">You haven't joined any communities yet.</p>
+                    <Link href="/community">
+                      <Button variant="outline" size="sm" className="mt-4">Browse Communities</Button>
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-text-secondary">
-                    <MapPin className="h-4 w-4 text-primary" /> Lagos, Nigeria
+                ) : (
+                  <div className="space-y-3">
+                    {user.communityMemberships.map(m => (
+                      <Link key={m.community.id} href={`/community/${m.community.id}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/60 transition-colors group">
+                        <img src={m.community.avatar} className="h-10 w-10 rounded-xl object-cover" alt={m.community.name} />
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">{m.community.name}</p>
+                          <p className="text-[10px] text-text-muted uppercase tracking-wider">{m.role}</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-text-muted group-hover:text-primary transition-colors" />
+                      </Link>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
 
+              {/* Account Info */}
               <div className="bg-surface/80 rounded-3xl border border-border/60 p-8 shadow-xl">
                 <h3 className="font-display text-lg mb-6 uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" /> Badges & Achievements
+                  <Sparkles className="h-5 w-5 text-primary" /> Account Info
                 </h3>
-                <div className="flex flex-wrap gap-3">
-                  <Badge variant="primary" className="py-2 px-4 text-xs font-semibold">Top Contributor</Badge>
-                  <Badge className="py-2 px-4 text-xs bg-purple-500/10 text-purple-400 border-purple-500/20">Cosplay Champion</Badge>
-                  <Badge className="py-2 px-4 text-xs bg-blue-500/10 text-blue-400 border-blue-500/20">Figure Collector</Badge>
-                  <Badge className="py-2 px-4 text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Early Supporter</Badge>
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between text-sm border-b border-border/40 pb-3">
+                    <span className="text-text-secondary">Member Since</span>
+                    <span className="font-semibold">{new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm border-b border-border/40 pb-3">
+                    <span className="text-text-secondary">Account Role</span>
+                    <Badge variant={user.role === 'SUPERADMIN' ? 'primary' : 'outline'} className="text-[10px]">{user.role}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-text-secondary">Username</span>
+                    <span className="font-mono font-semibold text-primary">@{user.username}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         );
+
       case 'orders':
         return (
           <div className="bg-surface/80 rounded-3xl border border-border/60 overflow-hidden shadow-xl">
             <div className="p-8 border-b border-border/60 flex items-center justify-between">
               <h2 className="text-2xl font-display uppercase tracking-wider">My Orders</h2>
-              <span className="text-xs text-text-muted">Showing 3 latest orders</span>
+              <span className="text-xs text-text-muted">{orders.length} orders total</span>
             </div>
-            <div className="divide-y divide-border/60">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="p-6 hover:bg-white/[0.02] transition-colors">
-                  <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                    <div className="h-24 w-24 rounded-2xl bg-background border border-border overflow-hidden shrink-0">
-                      <img src={PRODUCTS[i-1].images[0]} className="w-full h-full object-cover" alt={PRODUCTS[i-1].name} />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex justify-between items-start gap-4">
-                        <h4 className="font-bold text-lg">{PRODUCTS[i-1].name}</h4>
-                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Delivered</Badge>
+            {orders.length === 0 ? (
+              <div className="p-12 text-center">
+                <ShoppingBag className="h-12 w-12 text-text-muted mx-auto mb-4" />
+                <p className="text-text-secondary font-semibold">No orders yet</p>
+                <Link href="/shop"><Button className="mt-4">Browse Shop</Button></Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-border/60">
+                {orders.map((order: any) => (
+                  <div key={order.id} className="p-6 hover:bg-white/[0.02] transition-colors">
+                    <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                      <div className="flex-1 space-y-1">
+                        <div className="flex justify-between items-start gap-4">
+                          <h4 className="font-bold">Order #{order.id.slice(-8).toUpperCase()}</h4>
+                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">{order.status || 'Processing'}</Badge>
+                        </div>
+                        <p className="text-xs text-text-muted">{order.items.length} item(s) • {new Date(order.createdAt).toLocaleDateString()}</p>
+                        <span className="text-primary font-bold text-lg">₦{order.totalAmount?.toLocaleString()}</span>
                       </div>
-                      <p className="text-xs text-text-muted">Order #AW-{10293 + i} • Placed Sept 1{i}, 2026</p>
-                      <div className="flex items-center gap-4 mt-2">
-                        <span className="text-primary font-bold text-lg">₦{PRODUCTS[i-1].price.toLocaleString()}</span>
-                        <span className="text-text-secondary text-xs bg-background px-2 py-1 rounded-md">Qty: 1</span>
+                      <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
+                        <Button variant="outline" size="sm" className="gap-2 flex-1 md:flex-initial">Track <Package className="h-4 w-4" /></Button>
                       </div>
-                    </div>
-                    <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
-                      <Button variant="outline" size="sm" className="gap-2 flex-1 md:flex-initial">Track Order <Package className="h-4 w-4" /></Button>
-                      <Link href={`/orders/AW-${10293 + i}`} className="flex-1 md:flex-initial">
-                        <Button variant="ghost" size="sm" className="w-full">Details</Button>
-                      </Link>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         );
+
       case 'events':
         return (
           <div className="bg-surface/80 rounded-3xl border border-border/60 overflow-hidden shadow-xl">
             <div className="p-8 border-b border-border/60">
-              <h2 className="text-2xl font-display uppercase tracking-wider">Events Joined</h2>
+              <h2 className="text-2xl font-display uppercase tracking-wider">My Tickets</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-              {EVENTS.map((event) => (
-                <div key={event.id} className="bg-background/80 border border-border/80 rounded-2xl overflow-hidden group hover:border-primary/50 transition-all flex flex-col justify-between">
-                  <div className="aspect-video relative overflow-hidden">
-                    <img src={event.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={event.title} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <Badge className="mb-2">{event.category}</Badge>
-                      <h4 className="font-bold text-white text-lg line-clamp-1">{event.title}</h4>
+            {tickets.length === 0 ? (
+              <div className="p-12 text-center">
+                <Calendar className="h-12 w-12 text-text-muted mx-auto mb-4" />
+                <p className="text-text-secondary font-semibold">No tickets purchased yet</p>
+                <Link href="/events"><Button className="mt-4">Browse Events</Button></Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                {tickets.map((ticket: any) => {
+                  const event = ticket.orderItem?.event;
+                  return (
+                    <div key={ticket.id} className="bg-background/80 border border-border/80 rounded-2xl overflow-hidden group hover:border-primary/50 transition-all flex flex-col justify-between">
+                      {event?.image && (
+                        <div className="aspect-video relative overflow-hidden">
+                          <img src={event.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={event.title} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <Badge className="mb-2">{ticket.orderItem?.ticketTier?.name}</Badge>
+                            <h4 className="font-bold text-white text-lg line-clamp-1">{event.title}</h4>
+                          </div>
+                        </div>
+                      )}
+                      <div className="p-5 space-y-4">
+                        <div className="flex items-center justify-between text-xs text-text-secondary">
+                          <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-primary" /> {event?.date}</span>
+                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Valid</Badge>
+                        </div>
+                        <p className="text-[10px] font-mono text-text-muted">Ticket: {ticket.uniqueCode}</p>
+                        <Link href={`/events/${event?.id}`}>
+                          <Button variant="secondary" className="w-full gap-2">View Event <ExternalLink className="h-4 w-4" /></Button>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-5 space-y-4">
-                    <div className="flex items-center justify-between text-xs text-text-secondary">
-                      <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-primary" /> {event.date}</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-primary" /> {event.location}</span>
-                    </div>
-                    <Link href={`/events/${event.id}`}>
-                      <Button variant="secondary" className="w-full gap-2">View Event Pass <ExternalLink className="h-4 w-4" /></Button>
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
+
       case 'discussions':
         return (
           <div className="bg-surface/80 rounded-3xl border border-border/60 overflow-hidden shadow-xl">
             <div className="p-8 border-b border-border/60">
               <h2 className="text-2xl font-display uppercase tracking-wider">My Discussions</h2>
             </div>
-            <div className="divide-y divide-border/60">
-              {FORUM_POSTS.map((post) => (
-                <div key={post.id} className="p-6 hover:bg-white/[0.02] transition-colors group">
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge variant="outline" className="text-[10px]">{post.category}</Badge>
-                    <span className="text-[10px] text-text-muted">{post.createdAt}</span>
-                  </div>
-                  <h4 className="font-bold text-lg mb-3 group-hover:text-primary transition-colors cursor-pointer">{post.title}</h4>
-                  <div className="flex items-center gap-6 text-xs text-text-secondary">
-                    <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 text-primary" /> {post.replies} Replies</span>
-                    <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-red-400" /> {post.likes} Likes</span>
-                    <button className="ml-auto text-red-400/80 hover:text-red-400 transition-colors flex items-center gap-1 text-xs">
-                      <Trash2 className="h-4 w-4" /> Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'billing':
-        return (
-          <div className="space-y-8">
-            <div className="bg-surface/80 rounded-3xl border border-border/60 p-8 shadow-xl">
-              <h2 className="text-2xl font-display uppercase tracking-wider mb-8">Payment Methods</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="border border-primary/50 bg-gradient-to-br from-primary/10 via-background to-surface rounded-2xl p-6 relative overflow-hidden shadow-lg">
-                  <div className="absolute -right-12 -top-12 h-40 w-40 bg-primary/20 rounded-full blur-3xl"></div>
-                  <div className="flex justify-between items-start mb-10">
-                    <div className="h-10 w-14 bg-white/10 rounded-lg backdrop-blur-md border border-white/20"></div>
-                    <span className="font-mono font-bold text-lg tracking-widest text-white">VISA</span>
-                  </div>
-                  <p className="font-mono text-xl tracking-wider mb-6 text-foreground">•••• •••• •••• 4242</p>
-                  <div className="flex justify-between text-xs uppercase tracking-widest text-text-secondary">
-                    <div>
-                      <p className="text-[10px]">Card Holder</p>
-                      <p className="text-white font-bold">Wonderous Boy</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px]">Expires</p>
-                      <p className="text-white font-bold">12/28</p>
-                    </div>
-                  </div>
-                </div>
-                <button className="border-2 border-dashed border-border/80 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-primary/50 hover:bg-surface-elevated/50 transition-all p-8 group">
-                  <div className="h-12 w-12 rounded-full bg-surface-elevated flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <Plus className="h-6 w-6" />
-                  </div>
-                  <p className="font-bold text-sm">Add New Card</p>
-                </button>
+            {user.forumPosts.length === 0 ? (
+              <div className="p-12 text-center">
+                <MessageSquare className="h-12 w-12 text-text-muted mx-auto mb-4" />
+                <p className="text-text-secondary font-semibold">No posts yet</p>
+                <Link href="/forum"><Button className="mt-4">Start a Discussion</Button></Link>
               </div>
-            </div>
-
-            <div className="bg-surface/80 rounded-3xl border border-border/60 p-8 shadow-xl">
-              <h2 className="text-2xl font-display uppercase tracking-wider mb-6">Transaction History</h2>
-              <div className="space-y-4 divide-y divide-border/40">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between pt-4 first:pt-0">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-background border border-border flex items-center justify-center text-primary">
-                        <ShoppingBag className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm">Merchandise Purchase</p>
-                        <p className="text-[10px] text-text-muted">Sept {10+i}, 2026 • Visa *4242</p>
-                      </div>
+            ) : (
+              <div className="divide-y divide-border/60">
+                {user.forumPosts.map((post) => (
+                  <div key={post.id} className="p-6 hover:bg-white/[0.02] transition-colors group">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge variant="outline" className="text-[10px]">{post.category}</Badge>
+                      <span className="text-[10px] text-text-muted">{new Date(post.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-sm">-₦{ (15000 * i).toLocaleString() }</p>
-                      <p className="text-[10px] text-emerald-400 font-semibold">Successful</p>
+                    <h4 className="font-bold text-lg mb-3 group-hover:text-primary transition-colors cursor-pointer">{post.title}</h4>
+                    <div className="flex items-center gap-6 text-xs text-text-secondary">
+                      <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 text-primary" /> {post._count.comments} Replies</span>
+                      <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-red-400" /> {post._count.likes} Likes</span>
+                      <button className="ml-auto text-red-400/80 hover:text-red-400 transition-colors flex items-center gap-1 text-xs">
+                        <Trash2 className="h-4 w-4" /> Delete
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
         );
+
       case 'settings':
         return (
           <div className="bg-surface/80 rounded-3xl border border-border/60 p-8 shadow-xl">
             <h2 className="text-2xl font-display uppercase tracking-wider mb-8">Account Settings</h2>
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            {saveSuccess && (
+              <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm">Profile updated successfully!</div>
+            )}
+            <form className="space-y-6" onSubmit={handleSaveName}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Display Name</label>
-                  <input type="text" defaultValue="Wonderous Boy" className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none focus:border-primary transition-colors text-sm" />
+                  <input name="name" type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none focus:border-primary transition-colors text-sm" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Email Address</label>
-                  <input type="email" defaultValue="ansell.ok@example.com" className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none focus:border-primary transition-colors text-sm" />
+                  <input type="email" defaultValue={user.email ?? ''} className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none focus:border-primary transition-colors text-sm" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Username</label>
-                  <input type="text" defaultValue="wonderous_boy" className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none focus:border-primary transition-colors text-sm" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Location</label>
-                  <input type="text" defaultValue="Lagos, Nigeria" className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none focus:border-primary transition-colors text-sm" />
+                  <input type="text" defaultValue={user.username} disabled className="w-full h-12 bg-background border border-border rounded-xl px-4 outline-none text-sm opacity-60 cursor-not-allowed" />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Bio</label>
-                <textarea 
-                  rows={4} 
-                  defaultValue="Hardcore anime fan since 2012. Passionate figure collector, community builder, and convention enthusiast." 
-                  className="w-full bg-background border border-border rounded-xl p-4 outline-none focus:border-primary transition-colors text-sm resize-none" 
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border/60">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Profile Picture</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {presetAvatars.map((url) => (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => handleSelectAvatar(url)}
+                        className={`relative w-11 h-11 rounded-xl overflow-hidden transition-all duration-200 ${currentImage === url ? 'ring-2 ring-primary scale-110' : 'ring-1 ring-border opacity-70 hover:opacity-100'}`}
+                      >
+                        <img src={url} alt="Avatar" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                  <CldUploadWidget 
+                    uploadPreset="animewonderous_preset"
+                    onSuccess={(result: any) => handleUploadAvatar(result.info.secure_url)}
+                  >
+                    {({ open }) => (
+                      <Button type="button" variant="outline" className="w-full" onClick={() => open()}>
+                        Upload Custom Avatar
+                      </Button>
+                    )}
+                  </CldUploadWidget>
+                </div>
+                <div className="space-y-3">
+                  <label className="text-xs font-bold uppercase tracking-wider text-text-secondary">Profile Banner</label>
+                  <p className="text-xs text-text-muted">Add a custom banner to your profile page.</p>
+                  <CldUploadWidget 
+                    uploadPreset="animewonderous_preset"
+                    onSuccess={(result: any) => handleUploadBanner(result.info.secure_url)}
+                  >
+                    {({ open }) => (
+                      <Button type="button" variant="outline" className="w-full" onClick={() => open()}>
+                        Upload Banner Image
+                      </Button>
+                    )}
+                  </CldUploadWidget>
+                </div>
               </div>
 
               <div className="pt-6 flex gap-4 border-t border-border/60">
-                <Button className="px-8 shadow-lg shadow-primary/20">Save Changes</Button>
-                <Button variant="outline" type="button">Reset</Button>
+                <Button type="submit" className="px-8 shadow-lg shadow-primary/20" disabled={isPending}>{isPending ? 'Saving...' : 'Save Changes'}</Button>
+                <Button variant="outline" type="reset">Reset</Button>
               </div>
             </form>
           </div>
@@ -341,7 +465,10 @@ export default function AccountPage() {
                 </button>
               ))}
               <div className="h-px bg-border/60 my-3"></div>
-              <button className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-red-400 hover:bg-red-500/10 font-medium text-sm transition-all">
+              <button 
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-red-400 hover:bg-red-500/10 font-medium text-sm transition-all"
+              >
                 <LogOut className="h-4 w-4" /> Sign Out
               </button>
             </div>
@@ -350,9 +477,8 @@ export default function AccountPage() {
               <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 text-primary mb-3">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <h4 className="font-bold text-sm mb-1">Anime Pro Plus</h4>
-              <p className="text-xs text-text-secondary mb-4">Active membership until Jan 2027</p>
-              <Button variant="outline" size="sm" className="w-full text-xs">Manage Subscription</Button>
+              <h4 className="font-bold text-sm mb-1">{user.role === 'SUPERADMIN' ? 'Super Admin' : 'Member'}</h4>
+              <p className="text-xs text-text-secondary mb-4">Since {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
             </div>
           </aside>
 

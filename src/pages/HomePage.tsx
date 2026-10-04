@@ -5,11 +5,16 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { PRODUCTS, EVENTS, FORUM_POSTS } from '../data/mockData';
 import { Star, ArrowRight, Play, Heart, Calendar, MapPin, MessageSquare, ChevronRight, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 
-export default function HomePage() {
+type Props = {
+  products: any[];
+  events: any[];
+  forumPosts: any[];
+};
+
+export default function HomePage({ products, events, forumPosts }: Props) {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   return (
@@ -162,7 +167,7 @@ export default function HomePage() {
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {PRODUCTS.slice(0, 12).map((product) => (
+                  {products.slice(0, 12).map((product) => (
                     <Link href={`/shop/${product.id}`} key={product.id} className="bg-surface rounded-xl p-4 border border-border group block">
                       <div className="aspect-square rounded-lg overflow-hidden mb-4 bg-background">
                         <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -189,7 +194,7 @@ export default function HomePage() {
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {EVENTS.map((event) => (
+                  {events.map((event) => (
                     <Link href={`/events/${event.id}`} key={event.id} className="flex gap-4 bg-surface p-4 rounded-xl border border-border group hover:border-primary/50 transition-colors">
                       <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0">
                         <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
@@ -252,16 +257,16 @@ export default function HomePage() {
               <div className="bg-surface p-6 rounded-2xl border border-border">
                 <h3 className="font-display text-lg mb-4">COMMUNITY TALK</h3>
                 <div className="space-y-4">
-                  {FORUM_POSTS.slice(0, 3).map((post) => (
+                  {forumPosts.slice(0, 3).map((post) => (
                     <div key={post.id} className="space-y-2 border-b border-border pb-4 last:border-0 last:pb-0">
                       <div className="flex items-center gap-2">
-                        <img src={post.author.avatar} className="w-5 h-5 rounded-full" />
-                        <span className="text-xs text-text-secondary">{post.author.name}</span>
+                        <img src={post.author?.image || "https://i.pravatar.cc/150"} className="w-5 h-5 rounded-full" />
+                        <span className="text-xs text-text-secondary">{post.author?.username}</span>
                       </div>
                       <h4 className="text-sm font-bold hover:text-primary cursor-pointer transition-colors">{post.title}</h4>
                       <div className="flex items-center gap-3 text-[10px] text-text-muted">
-                        <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {post.replies}</span>
-                        <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {post.likes}</span>
+                        <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {post._count?.comments || 0}</span>
+                        <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {post._count?.likes || 0}</span>
                       </div>
                     </div>
                   ))}

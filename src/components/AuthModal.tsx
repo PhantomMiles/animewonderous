@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { X, Mail, Lock, User, Github } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { X, Mail, Lock, User } from 'lucide-react';
 import { Button } from './ui/Button';
+import { signIn } from 'next-auth/react';
+import { signUpUser } from '../app/actions';
+import { useRouter } from 'next/navigation';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,8 +13,58 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [error, setError] = useState<string>('');
+  const [isPending, startTransition] = useTransition();
+  const [selectedAvatar, setSelectedAvatar] = useState('/images/avatars/default.webp');
+  const router = useRouter();
+
+  const presetAvatars = [
+    '/images/avatars/default.webp',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Felix',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Aneka',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Jasper',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Mia',
+    'https://api.dicebear.com/9.x/notionists/svg?seed=Ryker'
+  ];
 
   if (!isOpen) return null;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError('');
+    const formData = new FormData(e.currentTarget);
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+
+    if (!username || !password) {
+      setError('Username and password are required');
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        if (mode === 'signup') {
+          await signUpUser(formData);
+        }
+        
+        // Log in the user immediately after sign up or if mode is sign in
+        const res = await signIn('credentials', {
+          redirect: false,
+          username,
+          password,
+        });
+
+        if (res?.error) {
+          setError(res.error === 'CredentialsSignin' ? 'Invalid credentials' : res.error);
+        } else {
+          router.refresh();
+          onClose();
+        }
+      } catch (err: any) {
+        setError(err.message || 'Something went wrong');
+      }
+    });
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto min-h-[100dvh]">
@@ -41,78 +94,95 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin' }: AuthModal
             </button>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            {mode === 'signup' && (
-              <div className="space-y-1">
-                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
-                  <input 
-                    type="text" 
-                    placeholder="John Doe"
-                    className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 outline-none focus:border-primary/50 transition-colors"
-                  />
-                </div>
-              </div>
-            )}
-            
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email Address</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Username</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
                 <input 
-                  type="email" 
-                  placeholder="name@example.com"
+                  name="username"
+                  type="text" 
+                  required
+                  placeholder="Username"
                   className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
             </div>
+            
+            {mode === 'signup' && (
+              <>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Email (Optional)</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
+                    <input 
+                      name="email"
+                      type="email" 
+                      placeholder="name@example.com"
+                      className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 outline-none focus:border-primary/50 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Choose Avatar</label>
+                  <input type="hidden" name="avatar" value={selectedAvatar} />
+                  <div className="flex flex-wrap gap-3">
+                    {presetAvatars.map((url) => (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => setSelectedAvatar(url)}
+                        className={`relative w-12 h-12 rounded-xl overflow-hidden transition-all duration-200 ${
+                          selectedAvatar === url 
+                            ? 'ring-2 ring-primary scale-110' 
+                            : 'ring-1 ring-border opacity-70 hover:opacity-100 hover:scale-105'
+                        }`}
+                      >
+                        <img src={url} alt="Avatar option" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="space-y-1">
               <label className="text-xs font-bold uppercase tracking-widest text-text-secondary">Password</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
                 <input 
+                  name="password"
                   type="password" 
+                  required
                   placeholder="••••••••"
                   className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
             </div>
 
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+
             {mode === 'signin' && (
               <div className="flex justify-end">
-                <button className="text-xs text-primary hover:underline">Forgot Password?</button>
+                <button type="button" className="text-xs text-primary hover:underline">Forgot Password?</button>
               </div>
             )}
 
-            <Button className="w-full h-12 mt-4" onClick={onClose}>
-              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+            <Button type="submit" disabled={isPending} className="w-full h-12 mt-4">
+              {isPending ? 'Processing...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
             </Button>
           </form>
-
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-surface px-4 text-text-muted">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="gap-2">
-              <Github className="h-5 w-5" /> GitHub
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" className="h-5 w-5" alt="Google" /> Google
-            </Button>
-          </div>
 
           <p className="text-center text-sm text-text-secondary mt-8">
             {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}{' '}
             <button 
-              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+              onClick={() => {
+                setMode(mode === 'signin' ? 'signup' : 'signin');
+                setError('');
+              }}
               className="text-primary font-bold hover:underline"
             >
               {mode === 'signin' ? 'Sign Up' : 'Sign In'}

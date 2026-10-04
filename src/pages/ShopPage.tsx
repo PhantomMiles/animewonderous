@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { PRODUCTS } from '../data/mockData';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '../components/ui/Button';
@@ -22,28 +21,32 @@ import Image from 'next/image';
 
 const ITEMS_PER_PAGE = 12;
 
-export default function ShopPage() {
+type Props = {
+  products: any[];
+};
+
+export default function ShopPage({ products }: Props) {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('featured');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<number>(500000);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // Extract categories dynamically from mockData PRODUCTS
+  // Extract categories dynamically from products
   const categories = useMemo(() => {
-    const rawCategories = PRODUCTS.map((p) => p.category).filter(Boolean);
+    const rawCategories = products.map((p) => p.category).filter(Boolean);
     const uniqueCategories = Array.from(new Set(rawCategories));
     return ['All', ...uniqueCategories];
-  }, []);
+  }, [products]);
 
   // Calculate highest price for the range filter
   const highestProductPrice = useMemo(() => {
-    return Math.max(...PRODUCTS.map((p) => p.price || 0), 500000);
-  }, []);
+    return Math.max(...products.map((p) => p.price || 0), 500000);
+  }, [products]);
 
   // Filter & Sort Logic
   const filteredAndSortedProducts = useMemo(() => {
-    let list = [...PRODUCTS];
+    let list = [...products];
 
     // Filter by Category
     if (activeCategory !== 'All') {
@@ -77,7 +80,7 @@ export default function ShopPage() {
     });
 
     return list;
-  }, [activeCategory, searchQuery, maxPrice, sortBy]);
+  }, [activeCategory, searchQuery, maxPrice, sortBy, products]);
 
   // Pagination Logic (Limit 12 per page)
   const totalPages =

@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Search, User, ShoppingCart, Menu, X, Sun, Moon } from 'lucide-react';
+import { Search, User, ShoppingCart, Menu, X, Sun, Moon, LogOut } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useTheme } from './ThemeProvider';
 import { AuthModal } from './AuthModal';
+import { useCart } from '../lib/CartContext';
+import { useSession, signOut } from 'next-auth/react';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -17,6 +19,8 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
+  const { totalItems } = useCart();
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
@@ -40,13 +44,13 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-8">
           <Link href="/" className="group flex items-center gap-2.5">
-            <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-border bg-card shadow-md transition-all duration-300 group-hover:scale-105 group-hover:border-primary/50">
-              <Image 
-                src="/aa.png" 
-                alt="Animewonderous Emblem" 
-                width={64} 
-                height={64} 
-                className="object-cover" 
+            <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden shadow-md transition-all duration-300 group-hover:scale-105 group-hover:border-primary/50">
+              <Image
+                src="/aa.png"
+                alt="Animewonderous Emblem"
+                width={64}
+                height={64}
+                className="object-cover"
                 priority
               />
             </div>
@@ -88,21 +92,13 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <div className="relative hidden lg:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search anime, items..."
-              className="h-10 w-64 rounded-full border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
-            />
-          </div>
 
           <div className="flex items-center gap-1 md:gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleTheme} 
-              aria-label="Toggle theme" 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
               className="hidden sm:flex"
             >
               {mounted && theme === 'dark' ? (
@@ -111,29 +107,49 @@ export function Header() {
                 <Moon className="h-5 w-5 text-primary transition-transform duration-300 -rotate-12" />
               )}
             </Button>
-            
+
             <Link href="/cart">
               <Button variant="ghost" size="icon" aria-label="Shopping Cart" className="relative">
                 <ShoppingCart className="h-5 w-5 text-foreground" />
-                <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  3
-                </span>
+                {totalItems > 0 && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
+                )}
               </Button>
             </Link>
-            
-            <div className="hidden md:flex items-center gap-2 ml-2">
-              <Button size="sm" onClick={() => openAuth('signup')} className="px-6">
-                Join Us
-              </Button>
-            </div>
+
+            {session ? (
+              <div className="hidden md:flex items-center gap-4 ml-2">
+                <Link href="/account" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <div className="h-9 w-9 rounded-full overflow-hidden bg-surface border border-border ring-2 ring-primary/20 hover:ring-primary/60 transition-all">
+                    <img src={session.user.image || '/images/avatars/default.webp'} alt={session.user.username || 'User'} className="h-full w-full object-cover" />
+                  </div>
+                </Link>
+                {session.user.role === 'SUPERADMIN' && (
+                  <Link href="/admin">
+                    <Button variant="ghost" size="sm" className="text-primary uppercase tracking-wider text-xs px-3 bg-primary/10 hover:bg-primary/20">Admin Panel</Button>
+                  </Link>
+                )}
+                <Button variant="ghost" size="icon" onClick={() => signOut()} aria-label="Sign Out">
+                  <LogOut className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                </Button>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center gap-2 ml-2">
+                <Button size="sm" onClick={() => openAuth('signup')} className="px-6">
+                  Join Us
+                </Button>
+              </div>
+            )}
 
             <div className="h-8 w-px bg-border mx-1 hidden sm:block md:hidden" />
-            
-            <Link href="/account" className="hidden sm:block">
-              <Button variant="ghost" size="icon" aria-label="User Account" className="rounded-full bg-card border border-border">
+
+            {!session && (
+              <Button variant="ghost" size="icon" aria-label="User Account" onClick={() => openAuth('signin')} className="hidden sm:block md:hidden rounded-full bg-card border border-border">
                 <User className="h-5 w-5 text-foreground" />
               </Button>
-            </Link>
+            )}
 
             <Button
               variant="ghost"
@@ -148,10 +164,10 @@ export function Header() {
         </div>
       </div>
 
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-        initialMode={authMode} 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authMode}
       />
 
       {/* Mobile Menu Dropdown */}

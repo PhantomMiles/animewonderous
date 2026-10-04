@@ -1,12 +1,3 @@
-// Prisma schema for AnimeWonderous.
-// Run `npx prisma migrate dev --name init` after setting DATABASE_URL to create the tables,
-// then `npx prisma db seed` to load the current mockData.ts content into them.
-
-// Prisma 7: "prisma-client-js" (generating into node_modules) is on its way
-// out, replaced by "prisma-client" with an explicit output path. The
-// connection URL itself also moved out of this file entirely — it now lives
-// in prisma.config.ts (CLI/migrations) and is passed to a driver adapter at
-// runtime (see src/lib/prisma.ts and prisma/seed.ts).
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -16,18 +7,76 @@ datasource db {
   provider = "postgresql"
 }
 
-// =====================================================================
-// CATALOG — content you manage (merch, events, tiers, communities).
-// IDs are kept as the same human-readable slugs mockData.ts already uses
-// ("prod-001", "shibuya-fest-3", ...) so existing /shop/[id] and
-// /events/[id] routes keep working unchanged once pages read from here.
-// =====================================================================
+// -----------------------------------------
+// Auth.js (NextAuth v5) Models
+// -----------------------------------------
+model User {
+  id            String    @id @default(cuid())
+  username      String    @unique
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  banner        String?
+  password      String?
+  role          UserRole  @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+
+  // Relations
+  communities     CommunityMember[]
+  forumPosts      ForumPost[]
+  forumComments   ForumComment[]
+  forumLikes      ForumLike[]
+  commentLikes    CommentLike[]
+  pollVotes       PollVote[]
+
+  banned        Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  USER
+  SUPERADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// -----------------------------------------
+// Existing Models with updates
+// -----------------------------------------
 
 model Product {
   id          String      @id
   name        String
   category    String
-  price       Int // NGN, whole naira
+  price       Int
   currency    String      @default("₦")
   rating      Float       @default(0)
   images      String[]
@@ -42,7 +91,7 @@ model Product {
 model Event {
   id                String               @id
   title             String
-  date              String // kept as display text ("December 2026") — marketing copy, not a precise timestamp
+  date              String
   location          String
   category          String
   price             Int
@@ -57,8 +106,6 @@ model Event {
   updatedAt         DateTime             @updatedAt
 }
 
-// CODEN_ENUGU_UNIVERSITIES — campus hubs, scoped to whichever event lists them
-// (only CODEN has hasUniversityHubs = true today, but this isn't hardcoded to it).
 model EventUniversityHub {
   id       String @id @default(cuid())
   event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -70,15 +117,13 @@ model EventUniversityHub {
   @@index([eventId])
 }
 
-// ANIME_TICKET_TIERS and CODEN_TICKET_TIERS, now actually linked to their
-// event by eventId instead of the hardcoded if/else in getTicketTiersForEvent().
 model TicketTier {
   id         String      @id
   event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId    String
   title      String
   theme      String
-  capacity   String // display label, e.g. "4 - 5 People (Squad)"
+  capacity   String
   groupSize  Int
   price      Int
   perks      String[]
@@ -93,36 +138,141 @@ model Community {
   avatar      String
   banner      String
   verified    Boolean  @default(false)
-  memberCount Int      @default(0)
   tags        String[]
   description String
+  rules       String[]
+  
+  banned      Boolean  @default(false)
+  
+  members     CommunityMember[]
+  forumPosts  ForumPost[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-// Author fields stay denormalized (name/avatar/verified) rather than a real
-// User relation, since there's no auth system yet — see the note below.
+enum CommunityRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+model CommunityMember {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  role        CommunityRole @default(MEMBER)
+  
+  joinedAt    DateTime @default(now())
+
+  @@unique([userId, communityId])
+}
+
+enum PostType {
+  TEXT
+  POLL
+}
+
 model ForumPost {
   id             String   @id @default(cuid())
+  type           PostType @default(TEXT)
   title          String
   body           String
   category       String
-  authorName     String
-  authorAvatar   String
-  authorVerified Boolean  @default(false)
-  replies        Int      @default(0)
-  likes          Int      @default(0)
+  image          String?
+  
+  author         User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId       String
+  
+  community      Community? @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId    String?
+
+  comments       ForumComment[]
+  likes          ForumLike[]
+  pollOptions    PollOption[]
+  
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
-// =====================================================================
-// ORDERS & PAYMENTS — one Order can now mix merch (PRODUCT) and event
-// passes (TICKET) in the same checkout, each snapshotted at purchase time.
-// =====================================================================
+model PollOption {
+  id        String     @id @default(cuid())
+  text      String
+  post      ForumPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  votes     PollVote[]
+}
 
+model PollVote {
+  id        String     @id @default(cuid())
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  optionId  String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime   @default(now())
+
+  @@unique([optionId, userId])
+}
+
+model ForumComment {
+  id          String   @id @default(cuid())
+  body        String
+  post        ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
+
+  // Nested replies (Reddit-style threading)
+  parent      ForumComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId    String?
+  replies     ForumComment[] @relation("CommentReplies")
+
+  likes       CommentLike[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CommentLike {
+  id          String      @id @default(cuid())
+  comment     ForumComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId   String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime    @default(now())
+
+  @@unique([commentId, userId])
+}
+
+model ForumLike {
+  id          String   @id @default(cuid())
+  post        ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime @default(now())
+  
+  @@unique([postId, userId])
+}
+
+// -----------------------------------------
+// Orders & Tickets
+// -----------------------------------------
 enum OrderStatus {
   PENDING
   PAID
   FAILED
   REFUNDED
+}
+
+enum DeliveryStatus {
+  PROCESSING
+  DISPATCHED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
 }
 
 enum OrderItemKind {
@@ -132,15 +282,16 @@ enum OrderItemKind {
 
 model Order {
   id            String      @id @default(cuid())
-  reference     String      @unique // Paystack transaction reference
+  reference     String      @unique
   status        OrderStatus @default(PENDING)
   customerEmail String
   subtotal      Int
   shipping      Int         @default(0)
   total         Int
   currency      String      @default("NGN")
-  paidAt        DateTime?
-  items         OrderItem[]
+  paidAt           DateTime?
+  deliveryStatus   DeliveryStatus @default(PROCESSING)
+  items            OrderItem[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -153,8 +304,6 @@ model OrderItem {
   orderId String
   kind    OrderItemKind
 
-  // Snapshot fields: copied from the catalog at purchase time, so this row
-  // stays accurate even if the product/tier is edited or removed later.
   name      String
   unitPrice Int
   quantity  Int
@@ -166,7 +315,6 @@ model OrderItem {
   ticketTier   TicketTier? @relation(fields: [ticketTierId], references: [id])
   ticketTierId String?
 
-  // Issued once this line item's order is marked PAID, for kind = TICKET.
   tickets Ticket[]
 
   @@index([orderId])
@@ -178,22 +326,13 @@ enum TicketStatus {
   EXPIRED
 }
 
-// Replaces MOCK_TICKETS — generated by the webhook, not hand-authored.
 model Ticket {
   id          String       @id @default(cuid())
   orderItem   OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   orderItemId String
-  code        String       @unique // backs the QR payload, e.g. api.qrserver.com/...?data={code}
+  code        String       @unique
   status      TicketStatus @default(VALID)
   createdAt   DateTime     @default(now())
 
   @@index([orderItemId])
 }
-
-// =====================================================================
-// NOT modeled yet, on purpose: a real User table, per-user order/ticket
-// history, and forum post authorship tied to an account. AuthModal.tsx is
-// UI-only right now — adding real Users needs an auth decision first
-// (NextAuth, Supabase Auth, Clerk, etc.) so that's left for Phase 2.
-// Orders are tracked by customerEmail in the meantime, same as today.
-// =====================================================================
