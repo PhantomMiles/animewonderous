@@ -1,41 +1,25 @@
-'use client';
-
-import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Package, MapPin, CreditCard, ChevronLeft, Truck, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { PRODUCTS } from '../data/mockData';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
-export default function OrderDetailsPage() {
-  const params = useParams();
-  const orderId = (params?.orderId as string) || 'AW-10294';
+type Props = {
+  order: any; // We'll type this loosely as it's a Prisma payload
+};
 
-  const order = {
-    id: orderId,
-    date: 'Sept 12, 2026',
-    status: 'Delivered',
-    items: [
-      { ...PRODUCTS[0], quantity: 1 },
-      { ...PRODUCTS[2], quantity: 1 }
-    ],
-    shippingAddress: {
-      name: 'Wonderous Boy',
-      street: '123 Anime Lane, Victoria Island',
-      city: 'Lagos',
-      country: 'Nigeria',
-      phone: '+234 800 123 4567'
-    },
-    paymentMethod: 'Visa ending in 4242',
-    summary: {
-      subtotal: 160000,
-      shipping: 5000,
-      tax: 0,
-      total: 165000
-    }
+export default function OrderDetailsPage({ order }: Props) {
+
+  // Derived or mock data for things not stored in the DB yet:
+  const shippingAddress = {
+    name: 'Anime Fan',
+    street: '123 Anime Lane, Victoria Island',
+    city: 'Lagos',
+    country: 'Nigeria',
+    phone: '+234 800 123 4567'
   };
+  const paymentMethod = 'Paystack';
 
   return (
     <>
@@ -51,7 +35,7 @@ export default function OrderDetailsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-6 border-b border-border/60">
           <div>
             <h1 className="text-3xl md:text-4xl font-display uppercase tracking-wider mb-2">Order Summary</h1>
-            <p className="text-text-secondary text-xs">Order #{order.id} • Confirmed {order.date}</p>
+            <p className="text-text-secondary text-xs">Order #{order.reference} • Confirmed {new Date(order.createdAt).toLocaleDateString()}</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" size="sm">Download Invoice</Button>
@@ -104,20 +88,22 @@ export default function OrderDetailsPage() {
                 <h3 className="font-display text-base uppercase tracking-wider">Ordered Items</h3>
               </div>
               <div className="divide-y divide-border/60">
-                {order.items.map((item) => (
+                {order.items.map((item: any) => {
+                  const image = item.product?.images?.[0] || '/aa.png';
+                  return (
                   <div key={item.id} className="p-6 flex gap-6 items-center">
                     <div className="h-20 w-20 rounded-2xl bg-background border border-border overflow-hidden shrink-0">
-                      <Image src={item.images[0]} alt={item.name} width={80} height={80} className="w-full h-full object-cover" />
+                      <Image src={image} alt={item.name} width={80} height={80} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-sm">{item.name}</h4>
-                      <p className="text-xs text-text-secondary mt-1">{item.category} • Quantity: {item.quantity}</p>
+                      <p className="text-xs text-text-secondary mt-1">Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-primary text-base">₦{item.price.toLocaleString()}</p>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           </div>
@@ -130,10 +116,10 @@ export default function OrderDetailsPage() {
                   <MapPin className="h-4 w-4 text-primary" /> Delivery Destination
                 </h3>
                 <div className="text-xs space-y-1">
-                  <p className="font-bold text-foreground text-sm">{order.shippingAddress.name}</p>
-                  <p className="text-text-secondary">{order.shippingAddress.street}</p>
-                  <p className="text-text-secondary">{order.shippingAddress.city}, {order.shippingAddress.country}</p>
-                  <p className="text-text-secondary pt-1">{order.shippingAddress.phone}</p>
+                  <p className="font-bold text-foreground text-sm">{shippingAddress.name}</p>
+                  <p className="text-text-secondary">{shippingAddress.street}</p>
+                  <p className="text-text-secondary">{shippingAddress.city}, {shippingAddress.country}</p>
+                  <p className="text-text-secondary pt-1">{shippingAddress.phone}</p>
                 </div>
               </div>
               <div className="h-px bg-border/60" />
@@ -141,7 +127,7 @@ export default function OrderDetailsPage() {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-primary" /> Payment Selection
                 </h3>
-                <p className="text-xs font-bold text-foreground">{order.paymentMethod}</p>
+                <p className="text-xs font-bold text-foreground">{paymentMethod}</p>
               </div>
             </div>
 
@@ -151,16 +137,16 @@ export default function OrderDetailsPage() {
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Subtotal</span>
-                  <span className="font-semibold">₦{order.summary.subtotal.toLocaleString()}</span>
+                  <span className="font-semibold">₦{order.subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Shipping Charge</span>
-                  <span className="font-semibold">₦{order.summary.shipping.toLocaleString()}</span>
+                  <span className="font-semibold">₦{order.shipping.toLocaleString()}</span>
                 </div>
                 <div className="h-px bg-border/60 my-2" />
                 <div className="flex justify-between text-base font-display">
                   <span>TOTAL PAID</span>
-                  <span className="text-primary font-bold">₦{order.summary.total.toLocaleString()}</span>
+                  <span className="text-primary font-bold">₦{order.total.toLocaleString()}</span>
                 </div>
               </div>
             </div>

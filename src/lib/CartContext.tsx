@@ -1,6 +1,20 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product } from '../data/mockData';
+
+// Minimal product shape needed by the cart — matches the Prisma Product model fields
+// used by catalog.ts so both mockData-era and DB-fetched products are compatible.
+export interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  currency: string;
+  rating: number;
+  images: string[];
+  description: string;
+  stock: number;
+  tags?: string[];
+}
 
 export interface CartItem extends Product {
   quantity: number;

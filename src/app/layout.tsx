@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "../components/ThemeProvider"; // adjust import path if needed
+import { ThemeProvider } from "../components/ThemeProvider";
+import { CartProvider } from "../lib/CartContext";
+import NextAuthSessionProvider from "../components/SessionProviderWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,9 +35,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} dark antialiased`} >
       <body className="min-h-full bg-background text-foreground flex flex-col font-sans" suppressHydrationWarning>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <NextAuthSessionProvider>
+          <ThemeProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </ThemeProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );

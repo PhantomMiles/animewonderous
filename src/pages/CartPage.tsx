@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PRODUCTS } from '../data/mockData';
+import { useCart } from '../lib/CartContext';
 import { Button } from '../components/ui/Button';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -16,33 +16,12 @@ import {
 import Link from 'next/link';
 
 export default function CartPage() {
-  // Cart starts empty by default
-  const [cartItems, setCartItems] = useState<
-    Array<(typeof PRODUCTS)[0] & { quantity: number }>
-  >([]);
-
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const [email, setEmail] = useState('');
   const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateQuantity = (id: string, delta: number) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shipping = subtotal > 0 ? 5000 : 0;
   const total = subtotal + shipping;
 
@@ -61,7 +40,7 @@ export default function CartPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          items: cartItems.map(({ id, quantity }) => ({ id, quantity })),
+          items: cart.map(({ id, quantity }) => ({ id, quantity })),
         }),
       });
       const data = await res.json();
@@ -87,7 +66,7 @@ export default function CartPage() {
           YOUR CART
         </h1>
 
-        {cartItems.length === 0 ? (
+        {cart.length === 0 ? (
           <div className="text-center py-20 bg-surface/80 rounded-3xl border border-border/60 max-w-2xl mx-auto shadow-xl space-y-4">
             <div className="h-20 w-20 rounded-full bg-background border border-border/80 flex items-center justify-center mx-auto text-text-muted">
               <ShoppingBag className="h-10 w-10 opacity-40" />
@@ -108,7 +87,7 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Cart Items List */}
             <div className="lg:col-span-8 space-y-4">
-              {cartItems.map((item) => {
+              {cart.map((item) => {
                 const name = item.name;
                 const image = item.images?.[0]
 
@@ -130,7 +109,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex items-center gap-3 bg-background border border-border/80 rounded-full p-1">
                       <button
-                        onClick={() => updateQuantity(item.id, -1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-surface transition-colors"
                       >
                         <Minus className="h-3 w-3" />
@@ -139,7 +118,7 @@ export default function CartPage() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.id, 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-surface transition-colors"
                       >
                         <Plus className="h-3 w-3" />
@@ -154,7 +133,7 @@ export default function CartPage() {
                       </p>
                     </div>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeFromCart(item.id)}
                       className="p-2 text-text-muted hover:text-red-400 transition-colors"
                     >
                       <Trash2 className="h-5 w-5" />

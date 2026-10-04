@@ -1,19 +1,22 @@
 'use client';
-import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { PRODUCTS } from '../data/mockData';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Star, ShoppingCart, Heart, Share2, ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { useCart } from '../lib/CartContext';
 
-export default function ProductDetailsPage() {
-  const { productId } = useParams<{ productId: string }>() || {};
-  const product = PRODUCTS.find(p => p.id === productId) || PRODUCTS[0];
+type Props = {
+  product: any;
+  relatedProducts: any[];
+};
+
+export default function ProductDetailsPage({ product, relatedProducts }: Props) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
   return (
     <>
@@ -35,7 +38,7 @@ export default function ProductDetailsPage() {
               <img src={product.images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              {product.images.map((img, i) => (
+              {product.images.map((img: string, i: number) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
@@ -84,7 +87,11 @@ export default function ProductDetailsPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="flex-1 gap-2 py-6 font-bold shadow-lg shadow-primary/20">
+                <Button 
+                  size="lg" 
+                  className="flex-1 gap-2 py-6 font-bold shadow-lg shadow-primary/20"
+                  onClick={() => addToCart(product, quantity)}
+                >
                   <ShoppingCart className="h-5 w-5" /> Add to Cart
                 </Button>
                 <Button variant="outline" size="lg" className="px-5">
@@ -130,7 +137,7 @@ export default function ProductDetailsPage() {
         <section className="mt-20">
           <h2 className="text-2xl font-display mb-8 uppercase tracking-wider">Related Collectibles</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {PRODUCTS.filter(p => p.id !== product.id).slice(0, 4).map(p => (
+            {relatedProducts.filter(p => p.id !== product.id).slice(0, 4).map(p => (
               <Link href={`/shop/${p.id}`} key={p.id} className="bg-surface/80 rounded-2xl border border-border/60 overflow-hidden group hover:border-primary/50 transition-all shadow-lg">
                 <div className="aspect-square bg-background overflow-hidden">
                   <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={p.name} />

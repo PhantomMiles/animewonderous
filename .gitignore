@@ -15,3 +15,23 @@ src/generated/
 vercel-*.json
 .vercel
 .env*
+
+# IDEs & Agent Workspaces
+.agents/
+.claude/
+.cursor/
+.devin/
+.vscode/
+
+# Implementation Plans and IDE Meta
+AGENTS.md
+CLAUDE.md
+Animewonderous_Implementation_Plan.md
+animewonderous_implementation_report.md
+metadata.json
+
+# Build files
+tsconfig.tsbuildinfo
+
+# Package managers
+bun.lock

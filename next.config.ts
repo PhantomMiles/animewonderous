@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
     config.resolve.symlinks = false;
     return config;
   },
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'api.dicebear.com' },
+      { protocol: 'https', hostname: 'i.pravatar.cc' },
+    ],
+  },
 };
 
 export default nextConfig;

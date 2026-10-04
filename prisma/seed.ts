@@ -168,7 +168,7 @@ async function main() {
         avatar: c.avatar,
         banner: c.banner,
         verified: c.verified,
-        memberCount: c.memberCount,
+
         tags: c.tags,
         description: c.description,
       },
@@ -178,7 +178,7 @@ async function main() {
         avatar: c.avatar,
         banner: c.banner,
         verified: c.verified,
-        memberCount: c.memberCount,
+
         tags: c.tags,
         description: c.description,
       },
@@ -186,9 +186,19 @@ async function main() {
   }
   console.log(`Seeded ${COMMUNITIES.length} communities`);
 
-  // Forum posts have no stable external id to upsert on in the mock data's
-  // shape beyond their own 'post-001' style ids, so these use createMany +
-  // skipDuplicates keyed loosely by title to avoid re-seeding duplicates.
+  // Create a mock user for legacy seeded posts
+  const mockUser = await prisma.user.upsert({
+    where: { email: 'mock@animewonderous.com' },
+    update: {},
+    create: {
+      username: 'system',
+      name: 'Anime Wonderous System',
+      email: 'mock@animewonderous.com',
+      image: '/images/avatars/default.webp',
+      password: 'no-password', // Not a real login
+    },
+  });
+
   const existingTitles = new Set((await prisma.forumPost.findMany({ select: { title: true } })).map((p) => p.title));
   const newPosts = FORUM_POSTS.filter((p) => !existingTitles.has(p.title));
   if (newPosts.length) {
@@ -197,11 +207,7 @@ async function main() {
         title: p.title,
         body: p.body,
         category: p.category,
-        authorName: p.author.name,
-        authorAvatar: p.author.avatar,
-        authorVerified: p.author.verified ?? false,
-        replies: p.replies,
-        likes: p.likes,
+        authorId: mockUser.id,
       })),
     });
   }
