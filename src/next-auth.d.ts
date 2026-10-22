@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client"
+import type { UserRole } from "./generated/prisma/client"
 import NextAuth, { type DefaultSession } from "next-auth"
 
 declare module "next-auth" {

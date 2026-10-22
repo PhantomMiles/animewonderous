@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '../../../lib/prisma';
 import { auth } from '../../../auth';
-import CommunityDetailsPage from '../../../pages/CommunityDetailsPage';
+import CommunityDetailsPage from '../../../views/CommunityDetailsPage';
 
 export default async function Page({ params }: { params: Promise<{ communityId: string }> }) {
   const { communityId } = await params;

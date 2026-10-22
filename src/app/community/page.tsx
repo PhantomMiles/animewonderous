@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/prisma';
-import CommunityPage from '../../pages/CommunityPage';
+import CommunityPage from '../../views/CommunityPage';
 
 export default async function Community() {
   const [communities, topPosts] = await Promise.all([

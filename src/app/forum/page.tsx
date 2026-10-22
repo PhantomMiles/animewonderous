@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/prisma';
-import ForumPage from '../../pages/ForumPage';
+import ForumPage from '../../views/ForumPage';
 
 export default async function Forum() {
   const [posts, totalPosts, totalUsers, totalComments, categories] = await Promise.all([

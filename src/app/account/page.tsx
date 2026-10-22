@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '../../auth';
 import { prisma } from '../../lib/prisma';
-import AccountPage from '../../pages/AccountPage';
+import AccountPage from '../../views/AccountPage';
 
 export default async function Account() {
   const session = await auth();

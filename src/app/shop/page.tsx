@@ -1,4 +1,4 @@
-import ShopPage from '../../pages/ShopPage';
+import ShopPage from '../../views/ShopPage';
 import { getProducts } from '../../lib/catalog';
 
 export default async function Shop() {

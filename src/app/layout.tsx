@@ -10,7 +10,7 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-// Backs the `font-display` utility used on headings across src/pages/*.tsx.
+// Backs the `font-display` utility used on headings across src/views/*.tsx.
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["500", "600", "700"],

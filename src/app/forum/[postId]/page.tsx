@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '../../../lib/prisma';
-import PostDetailsPage from '../../../pages/PostDetailsPage';
+import PostDetailsPage from '../../../views/PostDetailsPage';
 import { auth } from '../../../auth';
 
 export default async function Page({ params }: { params: Promise<{ postId: string }> }) {

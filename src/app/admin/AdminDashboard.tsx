@@ -13,7 +13,7 @@ import {
   adminCreateProduct,
   adminUpdateProduct,
   adminDeleteProduct,
-} from '../app/admin/actions';
+} from './actions';
 import { useRouter } from 'next/navigation';
 import { CldUploadWidget } from 'next-cloudinary';
 
@@ -200,11 +200,10 @@ export default function AdminDashboard({ data }: Props) {
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id as Tab)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
-                        activeTab === item.id
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium ${activeTab === item.id
                           ? 'bg-primary text-white font-bold shadow-lg shadow-primary/20'
                           : 'text-text-secondary hover:bg-surface-elevated hover:text-foreground'
-                      }`}
+                        }`}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
                       {item.name}

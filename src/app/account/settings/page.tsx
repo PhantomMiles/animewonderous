@@ -1,5 +1,5 @@
 'use client';
-import AccountSettingsPage from '../../../pages/AccountSettingsPage';
+import AccountSettingsPage from '../../../views/AccountSettingsPage';
 
 export default function Page() {
   return <AccountSettingsPage />;

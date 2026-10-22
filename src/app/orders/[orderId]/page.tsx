@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '../../../lib/prisma';
-import OrderDetailsPage from '../../../pages/OrderDetailsPage';
+import OrderDetailsPage from '../../../views/OrderDetailsPage';
 
 export default async function OrderDetails({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;

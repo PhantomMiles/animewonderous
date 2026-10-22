@@ -1,4 +1,4 @@
-import HomePage from "../pages/HomePage";
+import HomePage from "../views/HomePage";
 import { getProducts, getEvents, getForumPosts } from "../lib/catalog";
 
 export default async function Home() {

@@ -1,4 +1,4 @@
-import ProductDetailsPage from '../../../pages/ProductDetailsPage';
+import ProductDetailsPage from '../../../views/ProductDetailsPage';
 import { getProductById, getProducts } from '../../../lib/catalog';
 import { notFound } from 'next/navigation';
 

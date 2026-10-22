@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '../../auth';
 import { prisma } from '../../lib/prisma';
-import AdminDashboard from '../../pages/AdminDashboard';
+import AdminDashboard from './AdminDashboard';
 
 export default async function AdminPage() {
   const session = await auth();
