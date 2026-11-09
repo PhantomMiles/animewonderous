@@ -32,6 +32,7 @@ model User {
   pollVotes       PollVote[]
 
   banned        Boolean   @default(false)
+  verified      Boolean   @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

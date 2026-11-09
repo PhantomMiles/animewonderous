@@ -90,7 +90,11 @@ export async function createForumPost(formData: FormData) {
   const type = (formData.get('type') as 'TEXT' | 'POLL') || 'TEXT';
   const pollOptionsRaw = formData.get('pollOptions') as string | null;
   const image = formData.get('image') as string | null;
-  
+
+  if (type !== 'TEXT' && type !== 'POLL') throw new Error('Invalid post type');
+  if (title && title.length > 200) throw new Error('Title is too long');
+  if (body && body.length > 20000) throw new Error('Post body is too long');
+
   let pollOptionsData = [];
   if (type === 'POLL' && pollOptionsRaw) {
     const parsed = JSON.parse(pollOptionsRaw);
@@ -117,6 +121,25 @@ export async function createForumPost(formData: FormData) {
   return { success: true };
 }
 
+async function canManageForumPost(
+  userId: string,
+  post: { authorId: string; communityId: string | null }
+) {
+  if (post.authorId === userId) return true;
+
+  const [user, membership] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { role: true } }),
+    post.communityId
+      ? prisma.communityMember.findUnique({
+          where: { userId_communityId: { userId, communityId: post.communityId } },
+          select: { role: true },
+        })
+      : Promise.resolve(null),
+  ]);
+
+  return user?.role === 'SUPERADMIN' || membership?.role === 'ADMIN' || membership?.role === 'MODERATOR';
+}
+
 export async function deleteForumPost(postId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error('Not authenticated');
@@ -124,7 +147,7 @@ export async function deleteForumPost(postId: string) {
   const post = await prisma.forumPost.findUnique({ where: { id: postId } });
   if (!post) return { success: false };
 
-  // Note: Add proper authorization check here (is author, or is community admin/moderator, or superadmin)
+  if (!(await canManageForumPost(session.user.id, post))) throw new Error('Not authorized');
   await prisma.forumPost.delete({ where: { id: postId } });
   
   if (post.communityId) revalidatePath(`/community/${post.communityId}`);
@@ -142,7 +165,7 @@ export async function editForumPost(formData: FormData) {
   const post = await prisma.forumPost.findUnique({ where: { id: postId } });
   if (!post) throw new Error('Not found');
 
-  // Note: Add proper authorization check here
+  if (!(await canManageForumPost(session.user.id, post))) throw new Error('Not authorized');
   await prisma.forumPost.update({
     where: { id: postId },
     data: { body }
