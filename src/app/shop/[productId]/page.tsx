@@ -2,7 +2,7 @@ import ProductDetailsPage from '../../../views/ProductDetailsPage';
 import { getProductById, getProducts } from '../../../lib/catalog';
 import { notFound } from 'next/navigation';
 
-export default async function Page({ params }: { params: { productId: string } }) {
+export default async function Page({ params }: { params: Promise<{ productId: string }> }) {
   const { productId } = await params;
   const product = await getProductById(productId);
   if (!product) return notFound();

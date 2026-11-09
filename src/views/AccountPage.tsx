@@ -1,6 +1,7 @@
 'use client';
 
-import { User, Settings, ShoppingBag, Calendar, MessageSquare, CreditCard, LogOut, ShieldCheck, Mail, ChevronRight, Package, Trash2, ExternalLink, Plus, Heart, Sparkles, Users } from 'lucide-react';
+import { User, Settings, ShoppingBag, Calendar, MessageSquare, LogOut, ShieldCheck, Mail, ChevronRight, Package, Trash2, ExternalLink, Heart, Sparkles, Users, QrCode, X, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { useState, useTransition } from 'react';
@@ -47,6 +48,7 @@ type Props = {
 
 export default function AccountPage({ user, tickets, orders }: Props) {
   const [activeTab, setActiveTab] = useState<AccountTab>('overview');
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
   const [isPending, startTransition] = useTransition();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [displayName, setDisplayName] = useState(user.name || user.username);
@@ -124,7 +126,7 @@ export default function AccountPage({ user, tickets, orders }: Props) {
               <div 
                 className={`h-56 relative overflow-hidden bg-cover bg-center ${!currentBanner ? 'bg-gradient-to-r from-primary/30 via-purple-600/20 to-blue-600/30' : ''}`}
               >
-                {currentBanner && <img src={currentBanner} alt="Banner" className="w-full h-full object-cover" />}
+                {currentBanner && <Image src={currentBanner} alt="Banner" fill unoptimized className="object-cover" />}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent"></div>
                 {user.role === 'SUPERADMIN' && (
                   <div className="absolute top-4 right-4 bg-background/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-xs font-mono text-primary flex items-center gap-1.5">
@@ -136,9 +138,11 @@ export default function AccountPage({ user, tickets, orders }: Props) {
                 <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
                   <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left w-full md:w-auto">
                     <div className="h-36 w-36 rounded-3xl border-4 border-background bg-surface overflow-hidden shadow-2xl relative group ring-2 ring-primary/40 shrink-0">
-                      <img 
+                      <Image 
                         src={currentImage} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        fill
+                        unoptimized
+                        className="object-cover transition-transform duration-500 group-hover:scale-105" 
                         alt="Profile" 
                       />
                       <button 
@@ -204,7 +208,7 @@ export default function AccountPage({ user, tickets, orders }: Props) {
                 </h3>
                 {user.communityMemberships.length === 0 ? (
                   <div className="text-center py-6">
-                    <p className="text-text-muted text-sm">You haven't joined any communities yet.</p>
+                    <p className="text-text-muted text-sm">You haven&apos;t joined any communities yet.</p>
                     <Link href="/community">
                       <Button variant="outline" size="sm" className="mt-4">Browse Communities</Button>
                     </Link>
@@ -213,7 +217,9 @@ export default function AccountPage({ user, tickets, orders }: Props) {
                   <div className="space-y-3">
                     {user.communityMemberships.map(m => (
                       <Link key={m.community.id} href={`/community/${m.community.id}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-background/60 transition-colors group">
-                        <img src={m.community.avatar} className="h-10 w-10 rounded-xl object-cover" alt={m.community.name} />
+                        <div className="h-10 w-10 rounded-xl overflow-hidden relative shrink-0">
+                          <Image src={m.community.avatar} alt={m.community.name} fill unoptimized className="object-cover" />
+                        </div>
                         <div className="flex-1">
                           <p className="font-semibold text-sm">{m.community.name}</p>
                           <p className="text-[10px] text-text-muted uppercase tracking-wider">{m.role}</p>
@@ -303,13 +309,17 @@ export default function AccountPage({ user, tickets, orders }: Props) {
                 {tickets.map((ticket: any) => {
                   const event = ticket.orderItem?.event;
                   return (
-                    <div key={ticket.id} className="bg-background/80 border border-border/80 rounded-2xl overflow-hidden group hover:border-primary/50 transition-all flex flex-col justify-between">
+                    <div 
+                      key={ticket.id} 
+                      onClick={() => setSelectedTicket(ticket)}
+                      className="bg-background/80 border border-border/80 rounded-2xl overflow-hidden group hover:border-primary/50 transition-all flex flex-col justify-between cursor-pointer"
+                    >
                       {event?.image && (
                         <div className="aspect-video relative overflow-hidden">
-                          <img src={event.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={event.title} />
+                          <Image src={event.image} fill unoptimized className="object-cover transition-transform duration-500 group-hover:scale-105" alt={event.title} />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
                           <div className="absolute bottom-4 left-4 right-4">
-                            <Badge className="mb-2">{ticket.orderItem?.ticketTier?.name}</Badge>
+                            <Badge className="mb-2">{ticket.orderItem?.ticketTier?.title || ticket.orderItem?.ticketTier?.name}</Badge>
                             <h4 className="font-bold text-white text-lg line-clamp-1">{event.title}</h4>
                           </div>
                         </div>
@@ -319,10 +329,27 @@ export default function AccountPage({ user, tickets, orders }: Props) {
                           <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-primary" /> {event?.date}</span>
                           <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Valid</Badge>
                         </div>
-                        <p className="text-[10px] font-mono text-text-muted">Ticket: {ticket.uniqueCode}</p>
-                        <Link href={`/events/${event?.id}`}>
-                          <Button variant="secondary" className="w-full gap-2">View Event <ExternalLink className="h-4 w-4" /></Button>
-                        </Link>
+                        <p className="text-[10px] font-mono text-text-muted">Ticket: {ticket.code || ticket.uniqueCode || 'TKT-VALID'}</p>
+                        <div className="flex gap-2 pt-1">
+                          <Button 
+                            type="button" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTicket(ticket);
+                            }}
+                            className="flex-1 gap-2 shadow-md shadow-primary/20"
+                          >
+                            <QrCode className="h-4 w-4" /> View QR Pass
+                          </Button>
+                          <Link 
+                            href={`/events/${event?.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button variant="secondary" size="icon" title="View Event">
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   );
@@ -401,7 +428,7 @@ export default function AccountPage({ user, tickets, orders }: Props) {
                         onClick={() => handleSelectAvatar(url)}
                         className={`relative w-11 h-11 rounded-xl overflow-hidden transition-all duration-200 ${currentImage === url ? 'ring-2 ring-primary scale-110' : 'ring-1 ring-border opacity-70 hover:opacity-100'}`}
                       >
-                        <img src={url} alt="Avatar" className="w-full h-full object-cover" />
+                        <Image src={url} alt="Avatar" fill unoptimized className="object-cover" />
                       </button>
                     ))}
                   </div>
@@ -488,6 +515,91 @@ export default function AccountPage({ user, tickets, orders }: Props) {
           </main>
         </div>
       </div>
+
+      {selectedTicket && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setSelectedTicket(null)}
+        >
+          <div 
+            className="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative space-y-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setSelectedTicket(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[10px] px-3 py-1">
+                {selectedTicket.orderItem?.ticketTier?.title || selectedTicket.orderItem?.ticketTier?.name || 'Admission Pass'}
+              </Badge>
+              <h3 className="text-xl sm:text-2xl font-bold font-display uppercase tracking-wider text-foreground pt-2">
+                {selectedTicket.orderItem?.event?.title || 'Animewonderous Event'}
+              </h3>
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5 pt-1">
+                <Calendar className="w-3.5 h-3.5 text-primary" />
+                {selectedTicket.orderItem?.event?.date || 'Upcoming'}
+              </p>
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl mx-auto w-fit shadow-inner border-4 border-white flex flex-col items-center justify-center">
+              <Image 
+                src="/ticket-qr.png" 
+                alt="Ticket QR Code" 
+                width={220} 
+                height={220}
+                className="rounded-lg object-contain"
+                priority
+              />
+            </div>
+
+            <div className="space-y-2 pt-1 border-t border-border/60">
+              <div className="flex items-center justify-between text-xs px-2">
+                <span className="text-muted-foreground font-medium">Ticket Code:</span>
+                <span className="font-mono font-bold text-primary tracking-wider text-sm">
+                  {selectedTicket.code || selectedTicket.uniqueCode || 'TKT-VALID'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs px-2">
+                <span className="text-muted-foreground font-medium">Attendee:</span>
+                <span className="font-semibold text-foreground">{user.name || user.username}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs px-2">
+                <span className="text-muted-foreground font-medium">Status:</span>
+                <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Valid &amp; Active
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground italic">
+              Present this QR code on your mobile device at the gate for fast entry scan.
+            </p>
+
+            <div className="flex gap-3 pt-2">
+              <Button 
+                type="button" 
+                onClick={() => window.print()} 
+                variant="outline" 
+                className="flex-1 gap-2"
+              >
+                Print Pass
+              </Button>
+              <Button 
+                type="button" 
+                onClick={() => setSelectedTicket(null)} 
+                className="flex-1"
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

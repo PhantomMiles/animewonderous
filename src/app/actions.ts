@@ -231,7 +231,7 @@ export async function editComment(formData: FormData) {
   const body = formData.get('content') as string;
 
   const comment = await prisma.forumComment.findUnique({ where: { id: commentId } });
-  if (comment?.authorId !== session.user.id) throw new Error('Not authorized');
+  if (!comment || comment.authorId !== session.user.id) throw new Error('Not authorized');
 
   await prisma.forumComment.update({
     where: { id: commentId },
@@ -247,7 +247,7 @@ export async function deleteComment(commentId: string) {
   if (!session?.user?.id) throw new Error('Not authenticated');
 
   const comment = await prisma.forumComment.findUnique({ where: { id: commentId } });
-  if (comment?.authorId !== session.user.id) throw new Error('Not authorized');
+  if (!comment || comment.authorId !== session.user.id) throw new Error('Not authorized');
 
   await prisma.forumComment.delete({ where: { id: commentId } });
   revalidatePath(`/forum/${comment.postId}`);

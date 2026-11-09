@@ -1,7 +1,6 @@
 // Loads the content currently hardcoded in src/data/mockData.ts into the
-// database. Safe to re-run — every write is an upsert keyed on the same id
-// mockData.ts already uses, so running this again just syncs edits you make
-// in mockData.ts rather than creating duplicates.
+// database. Non-destructive: every write creates missing rows only (update: {})
+// so running this again never overwrites admin edits or decremented stock.
 //
 // Run with: npx prisma db seed
 
@@ -24,17 +23,7 @@ async function main() {
   for (const p of PRODUCTS) {
     await prisma.product.upsert({
       where: { id: p.id },
-      update: {
-        name: p.name,
-        category: p.category,
-        price: p.price,
-        currency: p.currency,
-        rating: p.rating,
-        images: p.images,
-        description: p.description,
-        stock: p.stock,
-        tags: p.tags ?? [],
-      },
+      update: {},
       create: {
         id: p.id,
         name: p.name,
@@ -54,17 +43,7 @@ async function main() {
   for (const e of EVENTS) {
     await prisma.event.upsert({
       where: { id: e.id },
-      update: {
-        title: e.title,
-        date: e.date,
-        location: e.location,
-        category: e.category,
-        price: e.price,
-        image: e.image,
-        description: e.description,
-        featured: e.featured ?? false,
-        hasUniversityHubs: e.hasUniversityHubs ?? false,
-      },
+      update: {},
       create: {
         id: e.id,
         title: e.title,
@@ -86,16 +65,20 @@ async function main() {
   // mockData.ts and extend this loop rather than reusing this constant.
   const codenEvent = EVENTS.find((e) => e.hasUniversityHubs);
   if (codenEvent) {
-    await prisma.eventUniversityHub.deleteMany({ where: { eventId: codenEvent.id } });
-    await prisma.eventUniversityHub.createMany({
-      data: CODEN_ENUGU_UNIVERSITIES.map((u) => ({
-        eventId: codenEvent.id,
-        name: u.name,
-        location: u.location,
-        role: u.role,
-      })),
-    });
-    console.log(`Seeded ${CODEN_ENUGU_UNIVERSITIES.length} university hubs for ${codenEvent.id}`);
+    const existingCount = await prisma.eventUniversityHub.count({ where: { eventId: codenEvent.id } });
+    if (existingCount === 0) {
+      await prisma.eventUniversityHub.createMany({
+        data: CODEN_ENUGU_UNIVERSITIES.map((u) => ({
+          eventId: codenEvent.id,
+          name: u.name,
+          location: u.location,
+          role: u.role,
+        })),
+      });
+      console.log(`Seeded ${CODEN_ENUGU_UNIVERSITIES.length} university hubs for ${codenEvent.id}`);
+    } else {
+      console.log(`Skipped seeding university hubs for ${codenEvent.id} (${existingCount} already exist)`);
+    }
   }
 
   // Ticket tiers: ANIME_TICKET_TIERS belong to the Shibuya-style event(s),
@@ -108,15 +91,7 @@ async function main() {
     if (!codenEventId) break;
     await prisma.ticketTier.upsert({
       where: { id: tier.id },
-      update: {
-        eventId: codenEventId,
-        title: tier.title,
-        theme: tier.theme,
-        capacity: tier.capacity,
-        groupSize: tier.groupSize,
-        price: tier.price,
-        perks: tier.perks,
-      },
+      update: {},
       create: {
         id: tier.id,
         eventId: codenEventId,
@@ -136,15 +111,7 @@ async function main() {
       const id = animeEvents.length > 1 ? `${event.id}__${tier.id}` : tier.id;
       await prisma.ticketTier.upsert({
         where: { id },
-        update: {
-          eventId: event.id,
-          title: tier.title,
-          theme: tier.theme,
-          capacity: tier.capacity,
-          groupSize: tier.groupSize,
-          price: tier.price,
-          perks: tier.perks,
-        },
+        update: {},
         create: {
           id,
           eventId: event.id,
@@ -163,15 +130,7 @@ async function main() {
   for (const c of COMMUNITIES) {
     await prisma.community.upsert({
       where: { id: c.id },
-      update: {
-        name: c.name,
-        avatar: c.avatar,
-        banner: c.banner,
-        verified: c.verified,
-
-        tags: c.tags,
-        description: c.description,
-      },
+      update: {},
       create: {
         id: c.id,
         name: c.name,

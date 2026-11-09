@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Search, User, ShoppingCart, Menu, X, Sun, Moon, LogOut } from 'lucide-react';
+import { User, ShoppingCart, Menu, X, Sun, Moon, LogOut } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
@@ -122,8 +122,8 @@ export function Header() {
             {session ? (
               <div className="hidden md:flex items-center gap-4 ml-2">
                 <Link href="/account" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <div className="h-9 w-9 rounded-full overflow-hidden bg-surface border border-border ring-2 ring-primary/20 hover:ring-primary/60 transition-all">
-                    <img src={session.user.image || '/images/avatars/default.webp'} alt={session.user.username || 'User'} className="h-full w-full object-cover" />
+                  <div className="h-9 w-9 rounded-full overflow-hidden bg-surface border border-border ring-2 ring-primary/20 hover:ring-primary/60 transition-all relative">
+                    <Image src={session.user.image || '/images/avatars/default.webp'} alt={session.user.username || 'User'} fill unoptimized className="object-cover" />
                   </div>
                 </Link>
                 {session.user.role === 'SUPERADMIN' && (

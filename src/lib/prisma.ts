@@ -4,6 +4,7 @@ import 'server-only';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { attachDatabasePool } from '@vercel/functions';
 
 // Prisma 7 requires a driver adapter — `new PrismaClient()` alone now throws.
 // This uses the plain node-postgres driver against DATABASE_URL, the same
@@ -18,8 +19,14 @@ if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is not set.');
 }
 
-// Create a new PostgreSQL pool
-const pool = new Pool({ connectionString });
+// Create a new PostgreSQL pool with connection limits
+const pool = new Pool({
+  connectionString,
+  max: process.env.POSTGRES_POOL_MAX ? parseInt(process.env.POSTGRES_POOL_MAX, 10) : 10,
+});
+
+// Closes idle connections before serverless function instance suspends on Vercel
+attachDatabasePool(pool);
 
 // Create a Prisma adapter using the pool
 const adapter = new PrismaPg(pool);
