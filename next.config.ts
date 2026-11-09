@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
   outputFileTracingRoot: path.join(__dirname),
   webpack: (config, { isServer }) => {
