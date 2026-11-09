@@ -1,4 +1,5 @@
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Shield, User, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -50,7 +51,9 @@ export function ManageMembersModal({ isOpen, onClose, communityId, members }: Pr
              {members.map((member) => (
                 <div key={member.id} className="flex items-center justify-between bg-background border border-border p-4 rounded-2xl">
                    <div className="flex items-center gap-3">
-                      <img src={member.user?.image || "https://i.pravatar.cc/150"} className="w-10 h-10 rounded-xl" />
+                      <div className="w-10 h-10 rounded-xl overflow-hidden relative shrink-0">
+                        <Image src={member.user?.image || "https://i.pravatar.cc/150"} alt={member.user?.username || "Member avatar"} fill unoptimized className="object-cover" />
+                      </div>
                       <div>
                          <p className="font-bold text-sm">{member.user?.username}</p>
                          <div className="flex items-center gap-1 mt-0.5">

@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { prisma } from '../../../lib/prisma';
 import EventDetailsPage from '../../../views/EventDetailsPage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
 

@@ -3,6 +3,8 @@ import { prisma } from '../../../lib/prisma';
 import PostDetailsPage from '../../../views/PostDetailsPage';
 import { auth } from '../../../auth';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
   const session = await auth();

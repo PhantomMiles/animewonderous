@@ -1,6 +1,8 @@
 import { prisma } from '../../lib/prisma';
 import ForumPage from '../../views/ForumPage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Forum() {
   const [posts, totalPosts, totalUsers, totalComments, categories] = await Promise.all([
     prisma.forumPost.findMany({

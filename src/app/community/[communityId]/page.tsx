@@ -3,6 +3,8 @@ import { prisma } from '../../../lib/prisma';
 import { auth } from '../../../auth';
 import CommunityDetailsPage from '../../../views/CommunityDetailsPage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }: { params: Promise<{ communityId: string }> }) {
   const { communityId } = await params;
 

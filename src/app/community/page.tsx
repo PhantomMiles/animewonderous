@@ -1,6 +1,8 @@
 import { prisma } from '../../lib/prisma';
 import CommunityPage from '../../views/CommunityPage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Community() {
   const [communities, topPosts] = await Promise.all([
     prisma.community.findMany({

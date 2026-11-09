@@ -1,4 +1,5 @@
 import { useState, useTransition } from 'react';
+import Image from 'next/image';
 import { X, Mail, Lock, User } from 'lucide-react';
 import { Button } from './ui/Button';
 import { signIn } from 'next-auth/react';
@@ -139,7 +140,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin' }: AuthModal
                             : 'ring-1 ring-border opacity-70 hover:opacity-100 hover:scale-105'
                         }`}
                       >
-                        <img src={url} alt="Avatar option" className="w-full h-full object-cover" />
+                        <Image src={url} alt="Avatar option" fill unoptimized className="object-cover" />
                       </button>
                     ))}
                   </div>

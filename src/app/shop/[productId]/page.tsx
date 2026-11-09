@@ -2,6 +2,8 @@ import ProductDetailsPage from '../../../views/ProductDetailsPage';
 import { getProductById, getProducts } from '../../../lib/catalog';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }: { params: Promise<{ productId: string }> }) {
   const { productId } = await params;
   const product = await getProductById(productId);

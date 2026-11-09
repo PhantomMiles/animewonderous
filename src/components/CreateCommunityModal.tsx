@@ -1,4 +1,5 @@
 import { X, ImageIcon, Globe, Lock, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from './ui/Button';
 import { createCommunity } from '../app/actions';
 import { useTransition, useState } from 'react';
@@ -91,7 +92,7 @@ export function CreateCommunityModal({ isOpen, onClose }: CreateCommunityModalPr
               <label className="text-sm font-medium text-text-secondary uppercase tracking-wider">Avatar Image</label>
               {avatarUrl ? (
                 <div className="relative h-32 rounded-2xl overflow-hidden border border-border group">
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <Image src={avatarUrl} alt="Avatar" fill unoptimized className="object-cover" />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <button type="button" onClick={() => setAvatarUrl(null)} className="text-white text-xs underline">Remove</button>
                   </div>

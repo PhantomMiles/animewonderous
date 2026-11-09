@@ -1,4 +1,5 @@
 import { X, Plus, Trash2, BarChart2, AlignLeft, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from './ui/Button';
 import { createForumPost } from '../app/actions';
 import { useTransition, useState } from 'react';
@@ -107,7 +108,7 @@ export function NewDiscussionModal({ isOpen, onClose, communityId }: NewDiscussi
             <label className="text-sm font-medium text-text-secondary uppercase tracking-wider">Add Image (Optional)</label>
             {selectedImage ? (
               <div className="relative w-full h-48 rounded-xl overflow-hidden group">
-                <img src={selectedImage} alt="Post preview" className="w-full h-full object-cover" />
+                <Image src={selectedImage} alt="Post preview" fill unoptimized className="object-cover" />
                 <button
                   type="button"
                   onClick={() => setSelectedImage(null)}
