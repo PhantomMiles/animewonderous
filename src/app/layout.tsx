@@ -1,21 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { CartProvider } from "../lib/CartContext";
 import NextAuthSessionProvider from "../components/SessionProviderWrapper";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-
-// Backs the `font-display` utility used on headings across src/views/*.tsx.
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-display",
-});
 
 export const metadata: Metadata = {
   title: "Animewonderous | More Than Just Fandom",
@@ -33,7 +20,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} dark antialiased`} >
+    <html
+      lang="en"
+      className="dark antialiased"
+      style={{
+        "--font-sans": "Arial, Helvetica, sans-serif",
+        "--font-display": '"Trebuchet MS", Arial, sans-serif',
+      } as React.CSSProperties}
+    >
       <body className="min-h-full bg-background text-foreground flex flex-col font-sans" suppressHydrationWarning>
         <NextAuthSessionProvider>
           <ThemeProvider>
