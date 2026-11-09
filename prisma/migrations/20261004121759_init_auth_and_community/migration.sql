@@ -15,14 +15,14 @@
 -- The previous production attempt left enum types behind before the first
 -- table alteration failed. Keep this migration retryable after it is resolved.
 BEGIN;
-DO $ BEGIN CREATE TYPE "UserRole" AS ENUM ('USER', 'SUPERADMIN');
-EXCEPTION WHEN duplicate_object THEN NULL; END $;
-DO $ BEGIN CREATE TYPE "CommunityRole" AS ENUM ('ADMIN', 'MODERATOR', 'MEMBER');
-EXCEPTION WHEN duplicate_object THEN NULL; END $;
-DO $ BEGIN CREATE TYPE "PostType" AS ENUM ('TEXT', 'POLL');
-EXCEPTION WHEN duplicate_object THEN NULL; END $;
-DO $ BEGIN CREATE TYPE "DeliveryStatus" AS ENUM ('PROCESSING', 'DISPATCHED', 'IN_TRANSIT', 'DELIVERED', 'RETURNED');
-EXCEPTION WHEN duplicate_object THEN NULL; END $;
+DO $do$ BEGIN CREATE TYPE "UserRole" AS ENUM ('USER', 'SUPERADMIN');
+EXCEPTION WHEN duplicate_object THEN NULL; END $do$;
+DO $do$ BEGIN CREATE TYPE "CommunityRole" AS ENUM ('ADMIN', 'MODERATOR', 'MEMBER');
+EXCEPTION WHEN duplicate_object THEN NULL; END $do$;
+DO $do$ BEGIN CREATE TYPE "PostType" AS ENUM ('TEXT', 'POLL');
+EXCEPTION WHEN duplicate_object THEN NULL; END $do$;
+DO $do$ BEGIN CREATE TYPE "DeliveryStatus" AS ENUM ('PROCESSING', 'DISPATCHED', 'IN_TRANSIT', 'DELIVERED', 'RETURNED');
+EXCEPTION WHEN duplicate_object THEN NULL; END $do$;
 ALTER TABLE "Order" ADD COLUMN "deliveryStatus" "DeliveryStatus" NOT NULL DEFAULT 'PROCESSING';
 
 -- CreateTable
