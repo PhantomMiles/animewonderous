@@ -43,7 +43,7 @@ async function main() {
   for (const e of EVENTS) {
     await prisma.event.upsert({
       where: { id: e.id },
-      update: {},
+      update: e.id === 'shibuya-fest-3' ? { date: e.date, price: e.price } : {},
       create: {
         id: e.id,
         title: e.title,
@@ -87,6 +87,13 @@ async function main() {
   const codenEventId = EVENTS.find((e) => e.hasUniversityHubs)?.id;
   const animeEvents = EVENTS.filter((e) => e.id !== codenEventId);
 
+  for (const event of animeEvents) {
+    await prisma.ticketTier.updateMany({
+      where: { eventId: event.id, id: { in: ['hashira-brigade', 'overlord-legion'] } },
+      data: { isActive: false },
+    });
+  }
+
   for (const tier of CODEN_TICKET_TIERS) {
     if (!codenEventId) break;
     await prisma.ticketTier.upsert({
@@ -111,7 +118,15 @@ async function main() {
       const id = animeEvents.length > 1 ? `${event.id}__${tier.id}` : tier.id;
       await prisma.ticketTier.upsert({
         where: { id },
-        update: {},
+        update: {
+          title: tier.title,
+          theme: tier.theme,
+          capacity: tier.capacity,
+          groupSize: tier.groupSize,
+          price: tier.price,
+          perks: tier.perks,
+          isActive: true,
+        },
         create: {
           id,
           eventId: event.id,
