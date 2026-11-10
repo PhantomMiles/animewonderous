@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Users, ShoppingBag, Box, Activity, X, Pencil, Trash2, Plus, Ban, CheckCircle2, ImageIcon } from 'lucide-react';
+import { Users, ShoppingBag, Box, Activity, X, Pencil, Trash2, Plus, Ban, CheckCircle2, ImageIcon, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -13,6 +13,8 @@ import {
   adminCreateProduct,
   adminUpdateProduct,
   adminDeleteProduct,
+  adminSetProductPublished,
+  adminImportDraftMerch,
 } from './actions';
 import { useRouter } from 'next/navigation';
 import { CldUploadWidget } from 'next-cloudinary';
@@ -141,6 +143,7 @@ export default function AdminDashboard({ data }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [productModal, setProductModal] = useState<{ open: boolean; product?: any }>({ open: false });
   const [isPending, startTransition] = useTransition();
+  const [draftImportMessage, setDraftImportMessage] = useState<string | null>(null);
   const router = useRouter();
 
   const navItems = [
@@ -169,6 +172,21 @@ export default function AdminDashboard({ data }: Props) {
     if (!confirm('Are you sure you want to permanently delete this product?')) return;
     startTransition(async () => {
       await adminDeleteProduct(productId);
+      router.refresh();
+    });
+  }
+
+  function handleSetProductPublished(productId: string, isPublished: boolean) {
+    startTransition(async () => {
+      await adminSetProductPublished(productId, isPublished);
+      router.refresh();
+    });
+  }
+
+  function handleImportDraftMerch() {
+    startTransition(async () => {
+      const count = await adminImportDraftMerch();
+      setDraftImportMessage(count > 0 ? `${count} proposed listings added as unpublished drafts.` : 'The draft catalog is already loaded.');
       router.refresh();
     });
   }
@@ -372,10 +390,19 @@ export default function AdminDashboard({ data }: Props) {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-display uppercase tracking-widest">Products</h2>
-                  <Button size="sm" className="gap-2" onClick={() => setProductModal({ open: true })}>
-                    <Plus className="h-4 w-4" /> Add Product
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" disabled={isPending} onClick={handleImportDraftMerch}>
+                      Import Proposed Merch Drafts
+                    </Button>
+                    <Button size="sm" className="gap-2" onClick={() => setProductModal({ open: true })}>
+                      <Plus className="h-4 w-4" /> Add Product
+                    </Button>
+                  </div>
                 </div>
+                <p className="text-sm text-text-secondary">
+                  Proposed merch prices are estimates. Drafts are hidden from shoppers until you add a product photo, confirm available stock, and publish them.
+                </p>
+                {draftImportMessage && <p className="text-sm text-emerald-400">{draftImportMessage}</p>}
                 <div className="bg-surface border border-border rounded-2xl overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
@@ -385,6 +412,7 @@ export default function AdminDashboard({ data }: Props) {
                           <th className="p-4">Category</th>
                           <th className="p-4">Price</th>
                           <th className="p-4">Stock</th>
+                          <th className="p-4">Listing status</th>
                           <th className="p-4 text-right">Actions</th>
                         </tr>
                       </thead>
@@ -405,7 +433,22 @@ export default function AdminDashboard({ data }: Props) {
                               </Badge>
                             </td>
                             <td className="p-4">
+                              <Badge className={p.isPublished ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}>
+                                {p.isPublished ? 'Published' : 'Draft · estimated price'}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
                               <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={p.isPublished ? 'text-text-muted hover:text-amber-400' : 'text-text-muted hover:text-green-400'}
+                                  disabled={isPending || (!p.isPublished && (p.price <= 0 || p.stock <= 0 || p.images.length === 0))}
+                                  title={p.isPublished ? 'Unpublish product' : 'Add a photo and available stock before publishing'}
+                                  onClick={() => handleSetProductPublished(p.id, !p.isPublished)}
+                                >
+                                  {p.isPublished ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -504,3 +547,4 @@ export default function AdminDashboard({ data }: Props) {
     </>
   );
 }
+

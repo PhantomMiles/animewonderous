@@ -426,6 +426,7 @@ export interface ProductItem {
   description: string;
   stock: number;
   tags?: string[];
+  isPublished?: boolean;
 }
 
 export interface CommunityItem {
@@ -673,6 +674,72 @@ export const CODEN_TICKET_TIERS: TicketTierItem[] = [
 // ==========================================
 // STORE & SHOP PRODUCTS DATA
 // ==========================================
+
+type DraftMerchListing = [id: string, name: string, category: string, price: number, franchise: string, productType: string];
+
+const DRAFT_MERCH_LISTINGS: DraftMerchListing[] = [
+  ['draft-tee-oversized-anime', 'Anime Graphic T-Shirt Men Oversized', 'Apparel', 12999, 'Anime', 'oversized graphic tee'],
+  ['draft-tee-naruto-akatsuki', 'Naruto Akatsuki Oversized T-Shirt', 'Apparel', 15000, 'Naruto Shippuden', 'oversized streetwear tee'],
+  ['draft-tee-jjk-gojo', 'Jujutsu Kaisen Gojo Graphic T-Shirt', 'Apparel', 15000, 'Jujutsu Kaisen', 'graphic tee'],
+  ['draft-tee-one-piece-luffy', 'One Piece Luffy Graphic T-Shirt', 'Apparel', 15000, 'One Piece', 'graphic tee'],
+  ['draft-jersey-anime-football', 'Anime Football Jersey', 'Apparel', 25000, 'Anime', 'football jersey'],
+  ['draft-jersey-anime-baseball', 'Anime Baseball Jersey', 'Apparel', 25000, 'Anime', 'baseball jersey'],
+  ['draft-shirt-compression', 'Anime Compression Shirt Men', 'Apparel', 18000, 'Naruto Shippuden', 'compression shirt'],
+  ['draft-hoodie-akatsuki', 'Naruto Akatsuki Hoodie', 'Apparel', 30000, 'Naruto Shippuden', 'hoodie'],
+  ['draft-jacket-varsity', 'Anime Varsity Jacket Unisex', 'Apparel', 45000, 'Anime', 'varsity jacket'],
+  ['draft-sweatshirt-demon-slayer', 'Demon Slayer Oversized Sweatshirt', 'Apparel', 20000, 'Demon Slayer', 'oversized sweatshirt'],
+  ['draft-cap-itachi', 'Itachi Embroidered Anime Baseball Cap', 'Apparel', 7500, 'Naruto Shippuden', 'baseball cap'],
+  ['draft-beanie-akatsuki', 'Akatsuki Anime Knit Beanie', 'Apparel', 7500, 'Naruto Shippuden', 'knit beanie'],
+  ['draft-keychain-acrylic', 'Anime Acrylic Pendant Keychain', 'Accessories', 5000, 'Anime', 'acrylic keychain'],
+  ['draft-keychain-metal', 'Anime Metal Character Keychain', 'Accessories', 5000, 'One Piece', 'metal keychain'],
+  ['draft-necklace-akatsuki', 'Naruto Akatsuki Cross Necklace', 'Accessories', 5000, 'Naruto Shippuden', 'pendant necklace'],
+  ['draft-necklace-pendant-men', 'Anime Pendant Necklace for Men', 'Accessories', 6000, 'Solo Leveling', 'pendant necklace'],
+  ['draft-bracelet-wristband', 'Anime Bracelet Wristband Set', 'Accessories', 3500, 'Jujutsu Kaisen', 'wristband set'],
+  ['draft-ring-stainless', 'Anime Stainless Steel Ring', 'Accessories', 2500, 'Naruto Shippuden', 'stainless steel ring'],
+  ['draft-stickers-vinyl-waterproof', 'Anime Waterproof Vinyl Stickers', 'Accessories', 3000, 'Anime', 'waterproof sticker set'],
+  ['draft-stickers-pack-50', 'Anime Sticker Pack 50 Pieces', 'Accessories', 5000, 'Anime', '50-piece sticker pack'],
+  ['draft-stickers-pack-100', 'Anime Sticker Pack 100 Pieces', 'Accessories', 8000, 'Anime', '100-piece sticker pack'],
+  ['draft-bag-tote', 'Anime Graphic Tote Bag', 'Accessories', 8000, 'Studio Ghibli', 'canvas tote bag'],
+  ['draft-bag-backpack', 'Anime School Backpack', 'Accessories', 20000, 'One Piece', 'school backpack'],
+  ['draft-wallet-men', 'Anime Wallet for Men', 'Accessories', 7500, 'Naruto Shippuden', 'folding wallet'],
+  ['draft-phone-case-anime', 'Anime Character Phone Case', 'Accessories', 5000, 'Jujutsu Kaisen', 'phone case'],
+  ['draft-airpods-case-anime', 'Anime AirPods Protective Case', 'Accessories', 5000, 'Demon Slayer', 'earbud case'],
+  ['draft-tumbler-anime', 'Anime Water Bottle Tumbler', 'Home & Lifestyle', 12000, 'One Piece', 'drink tumbler'],
+  ['draft-poster-canvas-anime', 'Anime Wall Poster Canvas Print', 'Posters & Art', 20000, 'Demon Slayer', 'canvas wall print'],
+  ['draft-poster-manga-panel', 'Anime Manga Panel Framed Poster', 'Posters & Art', 30000, 'One Piece', 'framed manga-panel print'],
+  ['draft-stand-acrylic-gojo', 'Jujutsu Kaisen Gojo Acrylic Stand Figure', 'Collectibles', 8000, 'Jujutsu Kaisen', 'acrylic standee'],
+  ['draft-figure-pvc-naruto', 'Naruto PVC Action Figure', 'Collectibles', 15000, 'Naruto Shippuden', 'PVC figure'],
+  ['draft-figure-model-luffy', 'One Piece Luffy Figure Model Toy', 'Collectibles', 12000, 'One Piece', 'display figure model'],
+  ['draft-plush-anya', 'Spy x Family Anya Plush Doll', 'Collectibles', 15000, 'Spy x Family', 'plush doll'],
+  ['draft-figure-pop-goku', 'Dragon Ball Goku Vinyl Collectible Figure', 'Collectibles', 20000, 'Dragon Ball', 'vinyl collectible figure'],
+  ['draft-cosplay-costume-demon-slayer', 'Demon Slayer Cosplay Costume Set', 'Cosplay', 35000, 'Demon Slayer', 'cosplay costume'],
+  ['draft-cosplay-akatsuki-cloak', 'Naruto Akatsuki Cloak Cosplay Costume', 'Cosplay', 35000, 'Naruto Shippuden', 'cloak costume'],
+  ['draft-cosplay-wig', 'Anime Cosplay Wig', 'Cosplay', 18000, 'My Hero Academia', 'cosplay wig'],
+  ['draft-cosplay-headband-naruto', 'Naruto Konoha Headband Cosplay Prop', 'Cosplay', 5000, 'Naruto Shippuden', 'forehead protector'],
+  ['draft-keychain-katana', 'Anime Katana Mini Keychain', 'Accessories', 5000, 'Demon Slayer', 'sword keychain'],
+  ['draft-sword-display', 'Anime Sword Model Decoration', 'Cosplay', 35000, 'Bleach', 'display sword replica'],
+  ['draft-kunai-replica', 'Naruto Kunai Cosplay Prop Set', 'Cosplay', 15000, 'Naruto Shippuden', 'kunai prop set'],
+  ['draft-led-light-naruto', 'Naruto Anime LED Night Light', 'Home & Lifestyle', 18000, 'Naruto Shippuden', 'LED night light'],
+  ['draft-mousepad-anime-xxl', 'Anime XXL Gaming Mouse Pad Desk Mat', 'Gaming & Desk', 10000, 'Blue Lock', 'extended desk mat'],
+  ['draft-manga-demon-slayer', 'Demon Slayer Manga Volume', 'Manga & Media', 8000, 'Demon Slayer', 'manga volume'],
+  ['draft-pillow-character', 'Anime Character Pillow Cushion', 'Home & Lifestyle', 15000, 'Jujutsu Kaisen', 'decorative cushion'],
+];
+
+function makeDraftMerchProduct([id, name, category, price, franchise, productType]: DraftMerchListing): ProductItem {
+  return {
+    id,
+    name,
+    category,
+    price,
+    currency: '₦',
+    rating: 0,
+    images: [],
+    description: `${franchise} ${productType} listing concept. This is a proposed retail price only. Confirm supplier, licensing, landed cost, sizes/specifications, and availability before publication.`,
+    stock: 0,
+    tags: ['Draft', 'Price Estimate', franchise],
+    isPublished: false,
+  };
+}
 
 export const PRODUCTS: ProductItem[] = [
   {
@@ -923,6 +990,7 @@ export const PRODUCTS: ProductItem[] = [
     stock: 50,
     tags: ['Official Merch', 'Hot Item'],
   },
+  ...DRAFT_MERCH_LISTINGS.map(makeDraftMerchProduct),
 ];
 
 // ==========================================
@@ -1135,3 +1203,4 @@ export function getUserOrders(userId?: string): OrderItem[] {
 export function getUserTickets(userId?: string): UserTicket[] {
   return MOCK_TICKETS;
 }
+

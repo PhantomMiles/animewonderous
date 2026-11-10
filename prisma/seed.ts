@@ -35,6 +35,7 @@ async function main() {
         description: p.description,
         stock: p.stock,
         tags: p.tags ?? [],
+        isPublished: p.isPublished ?? true,
       },
     });
   }
@@ -196,3 +197,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

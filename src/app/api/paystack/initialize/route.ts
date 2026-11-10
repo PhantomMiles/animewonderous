@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     // browser. This is the same lookup the webhook will use to fulfill the
     // order, so a product renamed or restocked between these two calls
     // can't desync — both read the same source of truth.
-    const products = await prisma.product.findMany({ where: { id: { in: ids } } });
+    const products = await prisma.product.findMany({ where: { id: { in: ids }, isPublished: true } });
     const productsById = new Map(products.map((p) => [p.id, p]));
 
     let subtotal = 0;
@@ -74,3 +74,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Could not start payment' }, { status: 500 });
   }
 }
+
