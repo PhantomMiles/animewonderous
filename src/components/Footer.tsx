@@ -112,7 +112,7 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/tournaments" className="transition-colors hover:text-primary">
+                <Link href="/events" className="transition-colors hover:text-primary">
                   COD Tournaments
                 </Link>
               </li>
@@ -131,13 +131,8 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/shibuya-fest" className="transition-colors hover:text-primary">
+                <Link href="/events/shibuya-fest-3" className="transition-colors hover:text-primary">
                   Shibuya Fest 3.0
-                </Link>
-              </li>
-              <li>
-                <Link href="/creators" className="transition-colors hover:text-primary">
-                  Cosplayers & Artists
                 </Link>
               </li>
             </ul>
@@ -150,19 +145,9 @@ export const Footer = () => {
             </p>
             <ul className="flex flex-col gap-2.5 text-muted-foreground">
               <li>
-                <Link href="/contact" className="transition-colors hover:text-primary">
+                <a href="mailto:tickets@animewonderous.com" className="transition-colors hover:text-primary">
                   Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="transition-colors hover:text-primary">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="transition-colors hover:text-primary">
-                  Terms of Service
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -181,3 +166,4 @@ export const Footer = () => {
     </footer>
   );
 };
+

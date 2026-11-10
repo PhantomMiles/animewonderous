@@ -5,6 +5,13 @@ import { initializeTransaction } from '../../../../lib/paystack';
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.PAYSTACK_SECRET_KEY) {
+      return NextResponse.json(
+        { error: 'Ticket payments are temporarily unavailable. Please try again later.' },
+        { status: 503 },
+      );
+    }
+
     const body = await request.json();
     const email: unknown = body?.email;
     const tierId: unknown = body?.tierId;
@@ -91,3 +98,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Could not start payment' }, { status: 500 });
   }
 }
+

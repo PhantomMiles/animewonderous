@@ -4,7 +4,8 @@ import { User, Settings, ShoppingBag, Calendar, MessageSquare, LogOut, ShieldChe
 import Image from 'next/image';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
+import QRCode from 'qrcode';
 import { cn } from '../lib/utils';
 import { CldUploadWidget } from 'next-cloudinary';
 import { updateUserProfile } from '../app/actions';
@@ -49,6 +50,7 @@ type Props = {
 export default function AccountPage({ user, tickets, orders }: Props) {
   const [activeTab, setActiveTab] = useState<AccountTab>('overview');
   const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
+  const [ticketQrCode, setTicketQrCode] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [displayName, setDisplayName] = useState(user.name || user.username);
@@ -56,6 +58,34 @@ export default function AccountPage({ user, tickets, orders }: Props) {
   const [currentBanner, setCurrentBanner] = useState(user.banner || null);
   const { update } = useSession();
   const router = useRouter();
+
+  const selectedTicketCode = selectedTicket?.code || selectedTicket?.uniqueCode || '';
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!selectedTicketCode) {
+      setTicketQrCode(null);
+      return;
+    }
+
+    QRCode.toDataURL(selectedTicketCode, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 220,
+      color: { dark: '#000000', light: '#ffffff' },
+    })
+      .then((dataUrl) => {
+        if (!cancelled) setTicketQrCode(dataUrl);
+      })
+      .catch(() => {
+        if (!cancelled) setTicketQrCode(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTicketCode]);
 
   const presetAvatars = [
     '/images/avatars/default.webp',
@@ -545,22 +575,28 @@ export default function AccountPage({ user, tickets, orders }: Props) {
               </p>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl mx-auto w-fit shadow-inner border-4 border-white flex flex-col items-center justify-center">
-              <Image 
-                src="/ticket-qr.png" 
-                alt="Ticket QR Code" 
-                width={220} 
-                height={220}
-                className="rounded-lg object-contain"
-                priority
-              />
+            <div className="bg-white p-4 rounded-2xl mx-auto w-fit shadow-inner border-4 border-white flex flex-col items-center justify-center min-h-[252px] min-w-[252px]">
+              {ticketQrCode ? (
+                <Image
+                  src={ticketQrCode}
+                  alt={`QR code for ticket ${selectedTicketCode}`}
+                  width={220}
+                  height={220}
+                  unoptimized
+                  className="rounded-lg object-contain"
+                />
+              ) : (
+                <p className="max-w-[190px] text-sm text-center text-red-700">
+                  {selectedTicketCode ? 'Could not generate this ticket QR code.' : 'This ticket has no code to encode.'}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 pt-1 border-t border-border/60">
               <div className="flex items-center justify-between text-xs px-2">
                 <span className="text-muted-foreground font-medium">Ticket Code:</span>
                 <span className="font-mono font-bold text-primary tracking-wider text-sm">
-                  {selectedTicket.code || selectedTicket.uniqueCode || 'TKT-VALID'}
+                  {selectedTicketCode || 'Unavailable'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs px-2">
@@ -604,3 +640,4 @@ export default function AccountPage({ user, tickets, orders }: Props) {
     </>
   );
 }
+
