@@ -11,7 +11,34 @@ export async function POST(request: Request) {
     const quantity: unknown = body?.quantity;
     const eventId: unknown = body?.eventId;
 
-    if (typeof email !== 'string' || !/^\S+@\S+\.\S+$/.test(email)) {
+    const emailParts = typeof email === 'string' ? email.split('@') : [];
+    const [localPart, domain] = emailParts;
+    const domainLabels = domain?.split('.') ?? [];
+    const isValidEmail = Boolean(
+      typeof email === 'string' &&
+      email.length <= 254 &&
+      emailParts.length === 2 &&
+      localPart &&
+      domain &&
+      localPart.length <= 64 &&
+      !/\s/.test(email) &&
+      !localPart.startsWith('.') &&
+      !localPart.endsWith('.') &&
+      !localPart.includes('..') &&
+      domain.length <= 253 &&
+      domainLabels.length >= 2 &&
+      domainLabels.every(
+        (label) =>
+          label.length > 0 &&
+          label.length <= 63 &&
+          /^[a-z0-9-]+$/i.test(label) &&
+          !label.startsWith('-') &&
+          !label.endsWith('-'),
+      ) &&
+      /^[a-z]{2,}$/i.test(domainLabels[domainLabels.length - 1] ?? ''),
+    );
+
+    if (!isValidEmail) {
       return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
     }
     if (typeof tierId !== 'string' || !tierId) {
