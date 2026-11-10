@@ -31,7 +31,11 @@ export default async function Account() {
   // Fetch the user's tickets
   const tickets = await prisma.ticket.findMany({
     where: { orderItem: { order: { customerEmail: user.email ?? '' } } },
-    include: { orderItem: { include: { event: true, ticketTier: true } } },
+    include: {
+      orderItem: {
+        include: { event: true, ticketTier: true, order: { select: { status: true } } },
+      },
+    },
     orderBy: { createdAt: 'desc' },
     take: 10,
   });

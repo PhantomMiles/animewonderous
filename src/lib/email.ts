@@ -3,9 +3,18 @@ import QRCode from 'qrcode';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+function escapeHtml(value: string): string {
+  const replacements: Record<string, string> = {
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  };
+  return value.replace(/[&<>"']/g, (character) => replacements[character] ?? character);
+}
+
 export async function generateTicketQR(ticketCode: string): Promise<string> {
   try {
-    return await QRCode.toDataURL(ticketCode, {
+    const siteUrl = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://animewonderous.vercel.app').replace(/\/$/, '');
+    const verificationUrl = `${siteUrl}/tickets/verify/${encodeURIComponent(ticketCode)}`;
+    return await QRCode.toDataURL(verificationUrl, {
       color: {
         dark: '#000000',
         light: '#ffffff',
@@ -42,17 +51,17 @@ export async function sendTicketEmail({
 
   const html = `
     <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto;">
-      <h1 style="color: #6d28d9;">Your Tickets for ${eventName}</h1>
+      <h1 style="color: #6d28d9;">Your Tickets for ${escapeHtml(eventName)}</h1>
       <p>Thank you for your purchase! Attached to this email are your tickets.</p>
       
       <div style="margin-top: 30px;">
         ${tickets.map(t => `
           <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px;">
-            <h3 style="margin-top: 0;">${t.name}</h3>
-            <p><strong>Code:</strong> ${t.code}</p>
+            <h3 style="margin-top: 0;">${escapeHtml(t.name)}</h3>
+            <p><strong>Code:</strong> ${escapeHtml(t.code)}</p>
             <p>Please present the attached QR code at the venue.</p>
             <!-- Note: cid: reference works in many clients for inline display -->
-            <img src="cid:qr-${t.code}" alt="QR Code for ${t.code}" style="width: 200px; height: 200px; border: 1px solid #ccc; border-radius: 8px;"/>
+            <img src="cid:qr-${escapeHtml(t.code)}" alt="QR Code for ${escapeHtml(t.code)}" style="width: 200px; height: 200px; border: 1px solid #ccc; border-radius: 8px;"/>
           </div>
         `).join('')}
       </div>

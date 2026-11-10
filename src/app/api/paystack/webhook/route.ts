@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { randomBytes } from 'node:crypto';
 import { isValidWebhookSignature } from '../../../../lib/paystack';
 import { prisma } from '../../../../lib/prisma';
 import { sendTicketEmail } from '../../../../lib/email';
@@ -13,13 +14,35 @@ export async function POST(request: Request) {
   const rawBody = await request.text();
   const signature = request.headers.get('x-paystack-signature');
 
-  if (!isValidWebhookSignature(rawBody, signature)) {
+  if (!process.env.PAYSTACK_SECRET_KEY) {
+    console.error('Paystack webhook unavailable: PAYSTACK_SECRET_KEY is not configured.');
+    return NextResponse.json({ error: 'Webhook is not configured' }, { status: 503 });
+  }
+
+  let validSignature = false;
+  try {
+    validSignature = isValidWebhookSignature(rawBody, signature);
+  } catch {
+    return NextResponse.json({ error: 'Webhook is not configured' }, { status: 503 });
+  }
+  if (!validSignature) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
-  const event = JSON.parse(rawBody);
+  let event: any;
+  try {
+    event = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+  }
+  if (!event || typeof event !== 'object') {
+    return NextResponse.json({ error: 'Invalid payment payload' }, { status: 400 });
+  }
 
   if (event.event === 'charge.success') {
+    if (!event.data || typeof event.data.reference !== 'string' || !Number.isFinite(event.data.amount)) {
+      return NextResponse.json({ error: 'Invalid payment payload' }, { status: 400 });
+    }
     const { reference, amount, customer, metadata, paid_at } = event.data;
     const kind: string = metadata?.kind ?? 'PRODUCT';
 
@@ -38,13 +61,19 @@ export async function POST(request: Request) {
         // ---------------------------------------------------------------
         const tierId: string = metadata?.tierId;
         const eventId: string = metadata?.eventId;
-        const qty: number = Number(metadata?.quantity) || 1;
-        const unitPrice: number = Number(metadata?.unitPrice) || 0;
+        const qty: number = Number(metadata?.quantity);
+        const unitPrice: number = Number(metadata?.unitPrice);
         const tierName: string = metadata?.tierName ?? 'Ticket';
 
-        const tier = await prisma.ticketTier.findUnique({ where: { id: tierId } });
+        if (typeof tierId !== 'string' || !tierId || !Number.isInteger(qty) || qty < 1 || qty > 20 || !Number.isFinite(unitPrice) || unitPrice < 1) {
+          return NextResponse.json({ error: 'Invalid ticket purchase metadata' }, { status: 400 });
+        }
+        const tier = await prisma.ticketTier.findUnique({ where: { id: tierId }, include: { event: true } });
+        if (!tier || tier.price !== unitPrice || tier.eventId !== eventId || amount !== unitPrice * qty * 100) {
+          return NextResponse.json({ error: 'Ticket payment does not match the current ticket price' }, { status: 400 });
+        }
 
-        await prisma.$transaction(async (tx) => {
+        const tickets = await prisma.$transaction(async (tx) => {
           const order = await tx.order.create({
             data: {
               reference,
@@ -60,7 +89,7 @@ export async function POST(request: Request) {
                   name: tierName,
                   unitPrice,
                   quantity: qty,
-                  eventId: tier?.eventId ?? eventId,
+                  eventId: tier.eventId,
                   ticketTierId: tierId,
                 },
               },
@@ -74,22 +103,22 @@ export async function POST(request: Request) {
             tx.ticket.create({
               data: {
                 orderItemId: orderItem.id,
-                code: `TKT-${reference}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+                code: `TKT-${randomBytes(18).toString('hex').toUpperCase()}`,
                 status: 'VALID',
               },
             })
           );
           const tickets = await Promise.all(ticketCreates);
 
-          // Send email in the background
-          if (customer?.email) {
-            sendTicketEmail({
-              to: customer.email,
-              tickets: tickets.map((t) => ({ code: t.code, name: tierName })),
-              eventName: metadata?.eventName ?? 'Animewonderous Event',
-            }).catch((err) => console.error('Failed to send email inside webhook', err));
-          }
+          return tickets;
         });
+        if (customer?.email) {
+          sendTicketEmail({
+            to: customer.email,
+            tickets: tickets.map((t) => ({ code: t.code, name: tierName })),
+            eventName: metadata?.eventName ?? tier.event.title,
+          }).catch((err) => console.error('Failed to send ticket email', err));
+        }
       } else {
         // ---------------------------------------------------------------
         // Product purchase flow (existing logic)
@@ -136,9 +165,10 @@ export async function POST(request: Request) {
         ]);
       }
     } catch (err) {
-      // Payment already succeeded on Paystack's side — don't fail the webhook
-      // response over a DB hiccup, just log it for follow-up.
       console.error('Failed to persist order:', err);
+      // Paystack retries non-2xx webhook responses. Returning 200 here could
+      // permanently lose a paid order and its tickets.
+      return NextResponse.json({ error: 'Could not persist payment' }, { status: 500 });
     }
   }
 

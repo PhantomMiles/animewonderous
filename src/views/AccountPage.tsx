@@ -69,7 +69,7 @@ export default function AccountPage({ user, tickets, orders }: Props) {
       return;
     }
 
-    QRCode.toDataURL(selectedTicketCode, {
+    QRCode.toDataURL(`${window.location.origin}/tickets/verify/${encodeURIComponent(selectedTicketCode)}`, {
       errorCorrectionLevel: 'M',
       margin: 1,
       width: 220,
@@ -552,7 +552,7 @@ export default function AccountPage({ user, tickets, orders }: Props) {
           onClick={() => setSelectedTicket(null)}
         >
           <div 
-            className="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative space-y-6 text-center"
+            className="ticket-printable bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative space-y-6 text-center"
             onClick={(e) => e.stopPropagation()}
           >
             <button 
@@ -605,8 +605,8 @@ export default function AccountPage({ user, tickets, orders }: Props) {
               </div>
               <div className="flex items-center justify-between text-xs px-2">
                 <span className="text-muted-foreground font-medium">Status:</span>
-                <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Valid &amp; Active
+                <span className={`inline-flex items-center gap-1 font-bold ${selectedTicket.status === 'USED' ? 'text-amber-500' : selectedTicket.status === 'EXPIRED' || selectedTicket.orderItem?.order?.status !== 'PAID' ? 'text-red-500' : 'text-emerald-400'}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {selectedTicket.status === 'USED' ? 'Already checked in' : selectedTicket.status === 'EXPIRED' || selectedTicket.orderItem?.order?.status !== 'PAID' ? 'Not valid' : 'Valid & Active'}
                 </span>
               </div>
             </div>

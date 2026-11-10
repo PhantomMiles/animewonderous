@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Users, ShoppingBag, Box, Activity, X, Pencil, Trash2, Plus, Ban, CheckCircle2, ImageIcon, Eye, EyeOff } from 'lucide-react';
+import { Users, ShoppingBag, Box, Activity, X, Pencil, Trash2, Plus, Ban, CheckCircle2, ImageIcon, Eye, EyeOff, QrCode } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -17,6 +17,7 @@ import {
   adminImportDraftMerch,
 } from './actions';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { CldUploadWidget } from 'next-cloudinary';
 
 type Tab = 'overview' | 'users' | 'orders' | 'products' | 'communities';
@@ -212,6 +213,9 @@ export default function AdminDashboard({ data }: Props) {
           <aside className="lg:col-span-2">
             <div className="bg-surface border border-border rounded-2xl p-3 sticky top-24">
               <nav className="space-y-1">
+                <Link href="/admin/tickets/scan" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-text-secondary transition-all hover:bg-surface-elevated hover:text-foreground">
+                  <QrCode className="h-4 w-4 shrink-0" /> Ticket check-in
+                </Link>
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   return (
