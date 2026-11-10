@@ -55,7 +55,7 @@ export function getForumPosts() {
   return prisma.forumPost.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      author: true,
+      author: { select: { username: true, image: true } },
       _count: { select: { comments: true, likes: true } }
     }
   });

@@ -12,22 +12,22 @@ export default async function Page({ params }: { params: Promise<{ postId: strin
   const post = await prisma.forumPost.findUnique({
     where: { id: postId },
     include: {
-      author: true,
+      author: { select: { username: true, image: true } },
       // Only fetch top-level comments (no parentId)
       comments: {
         where: { parentId: null },
         include: {
-          author: true,
-          likes: true,
+          author: { select: { username: true, image: true } },
+          _count: { select: { likes: true } },
           replies: {
             include: {
-              author: true,
-              likes: true,
+              author: { select: { username: true, image: true } },
+              _count: { select: { likes: true } },
               // One more level deep
               replies: {
                 include: {
-                  author: true,
-                  likes: true,
+                  author: { select: { username: true, image: true } },
+                  _count: { select: { likes: true } },
                 }
               }
             },
@@ -40,9 +40,6 @@ export default async function Page({ params }: { params: Promise<{ postId: strin
         include: {
           _count: {
             select: { votes: true }
-          },
-          votes: {
-            select: { userId: true }
           }
         }
       },
@@ -76,7 +73,8 @@ export default async function Page({ params }: { params: Promise<{ postId: strin
 
     // Fetch all comment likes by this user for this post's comments
     const commentLikes = await prisma.commentLike.findMany({
-      where: { userId: session.user.id }
+      where: { userId: session.user.id, comment: { postId: post.id } },
+      select: { commentId: true },
     });
     likedCommentIds = commentLikes.map(cl => cl.commentId);
   }
@@ -86,12 +84,11 @@ export default async function Page({ params }: { params: Promise<{ postId: strin
   let userVotedOptionId: string | null = null;
   
   if (session?.user?.id && post.type === 'POLL') {
-    for (const opt of post.pollOptions) {
-      if (opt.votes.some((v: any) => v.userId === session.user.id)) {
-        userVotedOptionId = opt.id;
-        break;
-      }
-    }
+    const vote = await prisma.pollVote.findFirst({
+      where: { userId: session.user.id, option: { postId: post.id } },
+      select: { optionId: true },
+    });
+    userVotedOptionId = vote?.optionId ?? null;
   }
 
   return <PostDetailsPage 
