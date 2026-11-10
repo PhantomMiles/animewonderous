@@ -8,7 +8,7 @@ export default async function Forum() {
     prisma.forumPost.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
-        author: true,
+        author: { select: { username: true, image: true, role: true } },
         _count: { select: { comments: true, likes: true } }
       }
     }),

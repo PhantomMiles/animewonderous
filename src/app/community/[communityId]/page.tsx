@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: Promise<{ communityId: 
     include: { 
       _count: { select: { members: true } },
       members: {
-        include: { user: true },
+        include: { user: { select: { username: true, image: true } } },
         orderBy: { joinedAt: 'asc' }
       }
     }
@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ communityId: 
     where: { communityId },
     orderBy: { createdAt: 'desc' },
     include: {
-      author: true,
+      author: { select: { username: true, image: true } },
       _count: { select: { comments: true, likes: true } }
     }
   });

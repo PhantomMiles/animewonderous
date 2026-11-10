@@ -34,7 +34,7 @@ function CommentThread({ comment, postId, currentUser, likedCommentIds, depth = 
   const [editBody, setEditBody] = useState(comment.body);
 
   const isLiked = likedCommentIds.includes(comment.id);
-  const likeCount = comment.likes?.length || 0;
+  const likeCount = comment._count?.likes ?? comment.likes?.length ?? 0;
 
   const handleLike = () => {
     startTransition(async () => {
