@@ -191,3 +191,37 @@
 .animate-loading-bar {
   animation: loadingBar 1.2s ease-in-out infinite;
 }
+
+@media print {
+  body * { visibility: hidden !important; }
+  .ticket-printable, .ticket-printable *, .ticket-guide-printable, .ticket-guide-printable * { visibility: visible !important; }
+  .ticket-printable {
+    position: fixed !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: 24px auto !important;
+    padding: 28px !important;
+    color: #111 !important;
+    background: #fff !important;
+    border: 2px solid #222 !important;
+    border-radius: 16px !important;
+    box-shadow: none !important;
+  }
+  .ticket-printable button { display: none !important; }
+  .ticket-guide-printable {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    color: #111 !important;
+    background: #fff !important;
+    border-color: #222 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  .ticket-guide-printable * { color: #111 !important; }
+  @page { margin: 12mm; }
+}

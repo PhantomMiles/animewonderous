@@ -63,6 +63,7 @@ export async function POST(request: Request) {
     // Always verify price against DB — never trust the client.
     const tier = await prisma.ticketTier.findFirst({
       where: { id: tierId, eventId, isActive: true },
+      include: { event: { select: { title: true } } },
     });
     if (!tier) {
       return NextResponse.json({ error: 'Ticket tier not found for this event' }, { status: 400 });
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
         tierId: tier.id,
         eventId: tier.eventId,
         tierName: tier.title,
+        eventName: tier.event.title,
         quantity: qty,
         unitPrice: tier.price,
       },
