@@ -1,18 +1,14 @@
-// Database-backed equivalents of the functions and arrays in
-// src/data/mockData.ts. Each page can switch over one at a time — e.g.
-// ShopPage.tsx's `PRODUCTS` import becomes `await getProducts()` and the
-// component becomes an async Server Component. Nothing imports this file
-// yet; mockData.ts is still what's actually rendered until you wire a page
-// to it.
+// Database-backed shop queries. Draft listings stay in the admin catalog
+// until an administrator publishes them.
 
 import { prisma } from './prisma';
 
 export function getProducts() {
-  return prisma.product.findMany({ orderBy: { createdAt: 'asc' } });
+  return prisma.product.findMany({ where: { isPublished: true }, orderBy: { createdAt: 'asc' } });
 }
 
 export function getProductById(id: string) {
-  return prisma.product.findUnique({ where: { id } });
+  return prisma.product.findFirst({ where: { id, isPublished: true } });
 }
 
 export function getEvents() {
@@ -85,3 +81,4 @@ export function getTicketsForEmail(email: string) {
     orderBy: { createdAt: 'desc' },
   });
 }
+

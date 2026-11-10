@@ -3,6 +3,7 @@
 import { prisma } from '../../lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../../auth';
+import { PRODUCTS } from '../../data/mockData';
 
 async function requireSuperAdmin() {
   const session = await auth();
@@ -93,9 +94,52 @@ export async function adminUpdateProduct(productId: string, formData: FormData) 
   revalidatePath('/shop');
 }
 
+export async function adminSetProductPublished(productId: string, isPublished: boolean) {
+  await requireSuperAdmin();
+
+  if (isPublished) {
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product) throw new Error('Product not found');
+    if (product.price <= 0 || product.stock <= 0 || product.images.length === 0) {
+      throw new Error('Add a price, available stock, and at least one product image before publishing.');
+    }
+  }
+
+  await prisma.product.update({ where: { id: productId }, data: { isPublished } });
+  revalidatePath('/admin');
+  revalidatePath('/shop');
+}
+
+export async function adminImportDraftMerch() {
+  await requireSuperAdmin();
+  const drafts = PRODUCTS.filter((product) => product.isPublished === false);
+
+  const result = await prisma.product.createMany({
+    data: drafts.map((product) => ({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      currency: product.currency,
+      rating: product.rating,
+      images: product.images,
+      description: product.description,
+      stock: product.stock,
+      tags: product.tags ?? [],
+      isPublished: false,
+    })),
+    skipDuplicates: true,
+  });
+
+  revalidatePath('/admin');
+  revalidatePath('/shop');
+  return result.count;
+}
+
 export async function adminDeleteProduct(productId: string) {
   await requireSuperAdmin();
   await prisma.product.delete({ where: { id: productId } });
   revalidatePath('/admin');
   revalidatePath('/shop');
 }
+
