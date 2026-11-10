@@ -10,7 +10,7 @@ export default async function Page({ params }: { params: Promise<{ eventId: stri
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     include: {
-      ticketTiers: true,
+      ticketTiers: { where: { isActive: true } },
       universityHubs: true,
     },
   });

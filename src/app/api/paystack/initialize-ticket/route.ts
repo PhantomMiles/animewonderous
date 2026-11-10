@@ -27,10 +27,10 @@ export async function POST(request: Request) {
     }
 
     // Always verify price against DB — never trust the client.
-    const tier = await prisma.ticketTier.findUnique({
-      where: { id: tierId },
+    const tier = await prisma.ticketTier.findFirst({
+      where: { id: tierId, eventId, isActive: true },
     });
-    if (!tier || tier.eventId !== eventId) {
+    if (!tier) {
       return NextResponse.json({ error: 'Ticket tier not found for this event' }, { status: 400 });
     }
 
