@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       /^[a-z]{2,}$/i.test(domainLabels[domainLabels.length - 1] ?? ''),
     );
 
-    if (!isValidEmail) {
+    if (typeof email !== 'string' || !isValidEmail) {
       return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
     }
     if (typeof tierId !== 'string' || !tierId) {
